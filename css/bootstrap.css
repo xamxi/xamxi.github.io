@@ -3,7 +3,11 @@
  * Copyright 2011-2014 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
-
+ @font-face {
+  font-family: 'Valorant';
+  src: url(Valorant.ttf);
+  font-style: normal;
+}
 /*! normalize.css v3.0.0 | MIT License | git.io/normalize */
 html {
   font-family: sans-serif;
@@ -273,7 +277,7 @@ html {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Glyphicons Halflings';
   font-size: 14px;
   line-height: 1.42857143;
   color: #333;
@@ -2373,12 +2377,11 @@ input[type="button"].btn-block {
   -webkit-transition: height .35s ease;
           transition: height .35s ease;
 }
-@font-face {
-  font-family: 'Glyphicons Halflings';
-
-  src: url('../fonts/glyphicons-halflings-regular.eot');
-  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+:root
+{
+  font-family: 'Times New Roman', Times, serif !important;
 }
+
 .glyphicon {
   position: relative;
   top: 1px;
