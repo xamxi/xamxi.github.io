@@ -616,7 +616,7 @@ nav ul li a:hover {
     margin: 80px auto 260px;
 }
 .get-started-btn {
-    background-color: #7accc8;
+    background-color: #0f1923;
     padding: 20px 80px; 
     border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -741,7 +741,7 @@ nav ul li a:hover {
     background-color: #e8b968;
 }
 .colour3 {
-    background-color: #7accc8;
+    background-color: #0f1923;
 }
 .colour4 {
     background-color: #373b44;
@@ -778,7 +778,7 @@ nav ul li a:hover {
     margin-right: 5px;
 }
 footer {
-    background-color: #7accc8;
+    background-color: #0f1923;
     padding: 75px 0 220px;
 }
 footer p {
