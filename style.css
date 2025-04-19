@@ -238,7 +238,8 @@ main {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin-top: 0.1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .memorial-gallery img:hover {
@@ -281,8 +282,11 @@ main {
 @media (max-width: 768px) {
     header {
         padding: 1rem 0.5rem;
+        display: flex;
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem; /* Space between logo and nav */
+
     }
 
     nav {
@@ -294,7 +298,7 @@ main {
 
     nav a {
         font-size: 1rem; /* Adjust font size for mobile */
-        color: #000; /* Ensure text is visible */
+        color: white; /* Ensure text is visible */
         text-decoration: none; /* Remove underline */
     }
 
