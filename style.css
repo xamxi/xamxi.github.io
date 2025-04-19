@@ -263,6 +263,7 @@ main {
     /* Change the cursor to indicate zoom-out option */
 }
 
+
 @media (max-width: 768px) {
     .memorial-gallery {
         flex-direction: column;
@@ -370,5 +371,86 @@ main {
     .btn-signing-main {
         font-size: 0.8rem;
         padding: 0.8rem 1.5rem;
+    }
+}
+
+
+/* MEMBERS SECTION */
+.members-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.member {
+    background-color: #222;
+    border-radius: 10px;
+    padding: 1.5rem;
+    width: 20rem;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: white;
+}
+
+.member:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+}
+
+.member-photo {
+    width: 80%;
+    height: 20rem;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.member-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.member-role {
+    font-size: 1.2rem;
+    color: #a7a7a7;
+    margin-bottom: 0.5rem;
+}
+
+.member-description {
+    font-size: 1rem;
+    color: gray;
+    line-height: 1.4;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 768px) {
+    .members-container {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .member {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    .member-photo {
+        height: 12rem;
+    }
+
+    .member-name {
+        font-size: 1.3rem;
+    }
+
+    .member-role {
+        font-size: 1rem;
+    }
+
+    .member-description {
+        font-size: 0.9rem;
     }
 }
