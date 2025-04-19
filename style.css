@@ -248,6 +248,21 @@ main {
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
 }
 
+.zoomable {
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+    /* For smooth zooming */
+    max-width: 100%;
+    /* Ensure images fit in their container */
+    transform-origin: center;
+    /* Zoom to the center of the image */
+}
+
+.zoomable:active {
+    cursor: zoom-out;
+    /* Change the cursor to indicate zoom-out option */
+}
+
 @media (max-width: 768px) {
     .memorial-gallery {
         flex-direction: column;
@@ -259,6 +274,7 @@ main {
         /* Make images more responsive on mobile */
     }
 }
+
 
 /* TABLET */
 @media (max-width: 1300px) {
@@ -285,21 +301,28 @@ main {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem; /* Space between logo and nav */
+        gap: 1rem;
+        /* Space between logo and nav */
 
     }
 
     nav {
-        display: flex; /* Show navigation */
-        flex-direction: column; /* Stack the nav items vertically */
+        display: flex;
+        /* Show navigation */
+        flex-direction: column;
+        /* Stack the nav items vertically */
         align-items: flex-start;
-        gap: 1rem; /* Add space between the links */
+        gap: 1rem;
+        /* Add space between the links */
     }
 
     nav a {
-        font-size: 1rem; /* Adjust font size for mobile */
-        color: white; /* Ensure text is visible */
-        text-decoration: none; /* Remove underline */
+        font-size: 1rem;
+        /* Adjust font size for mobile */
+        color: white;
+        /* Ensure text is visible */
+        text-decoration: none;
+        /* Remove underline */
     }
 
     header h1 {

@@ -10,7 +10,8 @@
 </head>
 
 <body>
-  <img class="image-gradient" src="gradient.png" alt="image" />
+  <img class="image-gradient" src="gradient.png" alt="image">
+
   <div class="layer-blur"></div>
 
   <div class="container">
@@ -44,7 +45,7 @@
           </p>
 
           <div class="memorial-gallery">
-            <img src="memories/blured_m0.png" alt="Memory 1" data-aos="fade-up" data-aos-delay="3500"
+            <img src="memories/blured_m0.png" alt="Memory 1" class="zoomable" data-aos="fade-up" data-aos-delay="3500"
               data-aos-duration="1500">
           </div>
 
@@ -54,7 +55,7 @@
           </p>
 
           <div class="memorial-gallery">
-            <img src="memories/red_red.png" alt="Memory 2" data-aos="fade-up" data-aos-delay="3500"
+            <img src="memories/red_red.png" alt="Memory 2" class="zoomable" data-aos="fade-up" data-aos-delay="3500"
               data-aos-duration="1800">
           </div>
         </div>
@@ -62,10 +63,34 @@
     </main>
   </div>
 
+  <!-- Background overlay to close the zoom -->
+  <div id="zoom-overlay" class="zoom-overlay"></div>
+
+  <!-- AOS Script -->
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <script>
     AOS.init();
+
+    // Add zoom functionality to images
+    const zoomableImages = document.querySelectorAll('.zoomable');
+
+    zoomableImages.forEach((image) => {
+      image.addEventListener('click', () => {
+        if (image.style.transform === 'scale(2)') {
+          image.style.transform = 'scale(1)';
+          image.style.transition = 'transform 0.3s ease';
+        } else {
+          image.style.transform = 'scale(2)';
+          image.style.transition = 'transform 0.3s ease';
+        }
+      });
+    });
   </script>
+
+
+
+
+
 </body>
 
 </html>
