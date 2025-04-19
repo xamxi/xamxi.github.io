@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sample Website</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Spineline Example</title>
+    <style>
+        .spineline {
+            width: 100px;
+            height: 10px;
+            background-color: #3498db;
+            margin: 100px auto;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <header>
-        <h1>Welcome to My Sample Website</h1>
-    </header>
-
-    <section>
-        <h2>About This Website</h2>
-        <p>This is a simple webpage deployed using GitHub Pages. It includes basic HTML, CSS, and image references.</p>
-        <img src="sample-image.png" alt="Sample Image">
-    </section>
-
-    <footer>
-        <p>Created by Your Name</p>
-    </footer>
+    <div class="spineline"></div>
 </body>
-
 </html>
