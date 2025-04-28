@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About | RX HOME</title>
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  </head>
+
+  <body>
+    <img class="image-gradient" src="/assets/images/gradient.png" alt="image" />
+
+    <div class="layer-blur"></div>
+
+    <div class="container">
+      <header>
+        <h1 data-aos="fade-down" data-aos-duration="1500" class="logo">
+          RX HOME
+        </h1>
+        <nav>
+          <a data-aos="fade-down" data-aos-duration="1500" href="../">Home</a>
+          <a data-aos="fade-down" data-aos-duration="2000" class="active"
+            >About</a
+          >
+          <a data-aos="fade-down" data-aos-duration="2500" href="../members/"
+            >Members</a
+          >
+          <a data-aos="fade-down" data-aos-duration="3000" href="#">Contact</a>
+        </nav>
+        <button
+          data-aos="fade-down"
+          data-aos-duration="1500"
+          class="btn-signing"
+        >
+          SIGNING
+        </button>
+      </header>
+
+      <main>
+        <div class="content">
+          <div
+            data-aos="fade-zoom-in"
+            data-aos-easing="ease-in-back"
+            data-aos-delay="300"
+            data-aos-offset="0"
+            data-aos-duration="1500"
+            class="tag-box"
+          >
+            <div class="tag">ABOUT US</div>
+          </div>
+
+          <h1
+            data-aos="fade-zoom-in"
+            data-aos-easing="ease-in-back"
+            data-aos-delay="300"
+            data-aos-offset="0"
+            data-aos-duration="2000"
+          >
+            Our Story
+          </h1>
+
+          <div class="text-image-section">
+            <p
+              data-aos="fade-zoom-in"
+              data-aos-easing="ease-in-back"
+              data-aos-delay="300"
+              data-aos-offset="0"
+              data-aos-duration="2500"
+              class="description"
+            >
+              RX HOME is a cozy space for all the bros to grow, discover new
+              things, and walk this journey together.
+              <br /><br />
+              Together, we made a promise—to keep traveling side by side, all
+              the way to the ends of the earth.
+            </p>
+
+            <div class="memorial-gallery">
+              <img
+                src="../assets/images/memories/blured_m0.png"
+                alt="Memory 1"
+                class="zoomable"
+                data-aos="fade-up"
+                data-aos-delay="3500"
+                data-aos-duration="1500"
+              />
+            </div>
+
+            <p
+              data-aos="fade-zoom-in"
+              data-aos-easing="ease-in-back"
+              data-aos-delay="300"
+              data-aos-offset="0"
+              data-aos-duration="2500"
+              class="description"
+            >
+              A precious moment captured in time, forever remembered.
+            </p>
+
+            <div class="memorial-gallery">
+              <img
+                src="../assets/images/memories/red_red.png"
+                alt="Memory 2"
+                class="zoomable"
+                data-aos="fade-up"
+                data-aos-delay="3500"
+                data-aos-duration="1800"
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <spline-viewer
+        data-aos="fade-zoom-in"
+        data-aos-easing="ease-in-back"
+        data-aos-delay="300"
+        data-aos-offset="0"
+        data-aos-duration="2000"
+        class="robot-3d"
+        url="https://prod.spline.design/TPZdBUZ2cMB-EpON/scene.splinecode"
+      ></spline-viewer>
+      <!-- url="https://prod.spline.design/VgBnXXrrZKhrZmZi/scene.splinecode"></spline-viewer> -->
+    </div>
+    <script
+      type="module"
+      src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"
+    ></script>
+
+    <!-- Background overlay to close the zoom -->
+    <div id="zoom-overlay" class="zoom-overlay"></div>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+
+      // Add zoom functionality to images
+      const zoomableImages = document.querySelectorAll(".zoomable");
+
+      zoomableImages.forEach((image) => {
+        image.addEventListener("click", () => {
+          if (image.style.transform === "scale(2)") {
+            image.style.transform = "scale(1)";
+            image.style.transition = "transform 0.3s ease";
+          } else {
+            image.style.transform = "scale(2)";
+            image.style.transition = "transform 0.3s ease";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

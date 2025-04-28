@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Members | RX HOME</title>
+    <link rel="stylesheet" href="../assets/css/global.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  </head>
+
+  <body>
+    <img class="image-gradient" src="/assets/images/gradient.png" alt="image" />
+
+    <div class="layer-blur"></div>
+
+    <div class="container">
+      <header>
+        <h1 data-aos="fade-down" data-aos-duration="1500" class="logo">
+          RX HOME
+        </h1>
+
+        <nav>
+          <a data-aos="fade-down" data-aos-duration="1500" href="..">Home</a>
+          <a data-aos="fade-down" data-aos-duration="2000" href="../about/"
+            >About</a
+          >
+          <a data-aos="fade-down" data-aos-duration="2500" class="active"
+            >Members</a
+          >
+          <a data-aos="fade-down" data-aos-duration="3000" href="#">Contact</a>
+        </nav>
+
+        <button
+          data-aos="fade-down"
+          data-aos-duration="1500"
+          class="btn-signing"
+        >
+          SIGNING
+        </button>
+      </header>
+
+      <main>
+        <div class="content">
+          <h1
+            data-aos="fade-zoom-in"
+            data-aos-easing="ease-in-back"
+            data-aos-delay="300"
+            data-aos-offset="0"
+            data-aos-duration="2000"
+          >
+            Meet Us
+          </h1>
+
+          <div class="members-container">
+            <!-- Member 1 -->
+            <div class="member" data-aos="fade-up" data-aos-duration="1500">
+              <img
+                src="../assets/images/memories/omen.png"
+                alt="Member 1"
+                class="member-photo"
+              />
+              <h2 class="member-name">RX blue</h2>
+              <p class="member-role">Smoker</p>
+              <p class="member-description">
+                A laid-back smoker, always there for cover when the team’s in
+                need, stepping up to protect teammates in danger, and sparing
+                enemy lives when it’s not necessary :v.
+              </p>
+            </div>
+
+            <!-- Member 2 -->
+            <div class="member" data-aos="fade-up" data-aos-duration="1500">
+              <img src="member2.jpg" alt="Member 2" class="member-photo" />
+              <h2 class="member-name">RX Healing you</h2>
+              <p class="member-role">Sentinel</p>
+              <p class="member-description">nah</p>
+            </div>
+
+            <!-- Member 3 -->
+            <div class="member" data-aos="fade-up" data-aos-duration="1500">
+              <img src="member3.jpg" alt="Member 3" class="member-photo" />
+              <h2 class="member-name">RX ...</h2>
+              <p class="member-role">...</p>
+              <p class="member-description">...</p>
+            </div>
+
+            <!-- Member 4 -->
+            <div class="member" data-aos="fade-up" data-aos-duration="1500">
+              <img src="member4.jpg" alt="Member 4" class="member-photo" />
+              <h2 class="member-name">RX ...</h2>
+              <p class="member-role">...</p>
+              <p class="member-description">...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <spline-viewer
+        data-aos="fade-zoom-in"
+        data-aos-easing="ease-in-back"
+        data-aos-delay="300"
+        data-aos-offset="0"
+        data-aos-duration="2000"
+        class="robot-3d"
+        url="https://prod.spline.design/TPZdBUZ2cMB-EpON/scene.splinecode"
+      ></spline-viewer>
+    </div>
+
+    <script
+      type="module"
+      src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"
+    ></script>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+  </body>
+</html>
