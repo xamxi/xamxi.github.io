@@ -10,8 +10,7 @@
 Welcome to this magical trash can, filled with secrets, chaos, and outside-the-box highlights.  
 Dive in to find out that nothing makes sense — only **RX** does.  
 
-At least, we are here in this moment, on this long-lasting journey, in this eternal life.  
-Treat it kindly, feed it cookies, and occasionally whisper to it at night.  
+At least, we are here in this moment, on this long-lasting journey, in this eternal life.    
 
 **GGWP**, brothers.
 
