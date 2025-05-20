@@ -45,6 +45,23 @@ body {
   overflow: hidden;
 }
 
+/* LOGO */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 3rem;
+  /* Or whatever was the original size */
+  font-weight: 300;
+}
+
+.logo-icon {
+  height: 40px;
+  /* Adjust to your needs */
+  width: auto;
+}
+
+
 /* HEADER */
 header {
   display: flex;
@@ -125,15 +142,13 @@ main {
   width: 18rem;
   height: 2.5rem;
   border-radius: 50px;
-  background: linear-gradient(
-    to right,
-    #656565,
-    #7f42a7,
-    #6600c5,
-    #5300a0,
-    #757575,
-    #656565
-  );
+  background: linear-gradient(to right,
+      #656565,
+      #7f42a7,
+      #6600c5,
+      #5300a0,
+      #757575,
+      #656565);
   background-size: 200%;
   animation: animationgradient 2.5s linear infinite;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
