@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Friends on Workdate ✨</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="stars" id="stars"></div> <!-- JOIN MODAL -->
+  <div class="modal-overlay" id="joinModal">
+    <div class="modal-box">
+      <div class="modal-title">FRIENDS ON WORKDATE</div>
+      <div class="modal-sub">enter your name to join the world</div>
+      <input type="text" id="nameInput" class="pixel-input" maxlength="12" placeholder="your name...">
+      <div class="color-picker-row">
+        <span class="color-label">pick your color:</span>
+        <div class="color-swatches" id="colorSwatches"></div>
+      </div>
+      <button class="pixel-btn" id="joinBtn">JOIN ▶</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <div class="container" id="mainApp" style="display:none">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-title">✨ FRIENDS ON WORKDATE</div>
+      <div class="header-right">
+        <div class="online-badge"><span id="onlineCount">1</span> online</div>
+        <div class="my-tag" id="myTag"></div>
+      </div>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout">
+      <!-- LEFT: ROOMS -->
+      <div class="rooms-col">
+        <!-- STUDY ROOM -->
+        <div class="card room-card" id="card-study">
+          <div class="card-title">📚 Study room</div>
+          <div class="room-scene" id="scene-study">
+            <div class="floor floor-study"></div>
+            <div class="wall wall-study"></div>
+            <div class="chalkboard">
+              <div class="chalk-text" id="chalkText">study hard! ✏️</div>
+            </div>
+            <div class="study-shelf">
+              <div class="book b1"></div>
+              <div class="book b2"></div>
+              <div class="book b3"></div>
+              <div class="book b4"></div>
+              <div class="book b6"></div>
+              <div class="book b7"></div>
+            </div>
+            <div class="rug rug-study"></div>
+            <div class="plant plant-study">
+              <div class="pot"></div>
+              <div class="stem"></div>
+              <div class="leaf l1"></div>
+              <div class="leaf l2"></div>
+              <div class="leaf l3"></div>
+            </div>
+            <div class="desk-lamp">
+              <div class="dl-shade"></div>
+              <div class="dl-arm"></div>
+              <div class="dl-base"></div>
+              <div class="dl-glow"></div>
+            </div>
+            <div class="desk desk-study">
+              <div class="desk-item notebook"></div>
+              <div class="desk-item pencil-cup"></div>
+              <div class="desk-item laptop"></div>
+            </div>
+            <div class="char-layer" id="chars-study"></div>
+            <button class="room-join-btn" data-room="study">SIT HERE</button>
+          </div>
+          <div class="room-occupants" id="occ-study"></div>
+        </div>
+
+        <!-- CLOCK CARD -->
+        <div class="card clock-card">
+          <div class="card-title">🕒 Clock</div>
+          <div class="clock-wrap">
+            <div class="clock-face">
+              <div class="tick-marks" id="tickMarks"></div>
+              <div class="hand hour" id="hour"></div>
+              <div class="hand minute" id="minute"></div>
+              <div class="hand second" id="second"></div>
+              <div class="clock-center"></div>
+            </div>
+            <div class="digital-time" id="digitalTime"></div>
+            <div class="clock-date" id="clockDate"></div>
+          </div>
+        </div>
+
+        <!-- PLAYAH ROOM -->
+        <div class="card room-card" id="card-playah">
+          <div class="card-title">🎮 Playah room</div>
+          <div class="room-scene" id="scene-playah">
+            <div class="floor"></div>
+            <div class="wall"></div>
+            <div class="window-decor">
+              <div class="window-pane"></div>
+              <div class="window-pane"></div>
+              <div class="curtain left"></div>
+              <div class="curtain right"></div>
+            </div>
+            <div class="bookshelf">
+              <div class="book b1"></div>
+              <div class="book b2"></div>
+              <div class="book b3"></div>
+              <div class="book b4"></div>
+              <div class="book b5"></div>
+            </div>
+            <div class="rug"></div>
+            <div class="plant">
+              <div class="pot"></div>
+              <div class="stem"></div>
+              <div class="leaf l1"></div>
+              <div class="leaf l2"></div>
+              <div class="leaf l3"></div>
+            </div>
+            <div class="lamp">
+              <div class="lamp-shade"></div>
+              <div class="lamp-pole"></div>
+              <div class="lamp-base"></div>
+              <div class="lamp-glow"></div>
+            </div>
+            <div class="desk desk-playah">
+              <div class="desk-item game-controller"></div>
+              <div class="desk-item mug"></div>
+            </div>
+            <div class="char-layer" id="chars-playah"></div>
+            <button class="room-join-btn" data-room="playah">SIT HERE</button>
+          </div>
+          <div class="room-occupants" id="occ-playah"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <div class="sidebar-col">
+        <div class="card sidebar-card">
+          <div class="card-title">👾 Who's here</div>
+          <div class="user-list" id="userList"></div>
+        </div>
+
+        <div class="card sidebar-card chat-card">
+          <div class="card-title">💬 Chat</div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" class="chat-input" placeholder="say something..." maxlength="80">
+            <button class="send-btn" id="sendBtn">▶</button>
+          </div>
+        </div>
+
+        <div class="card sidebar-card vibes-card">
+          <div class="card-title">🎵 Vibes</div>
+          <div class="vibe-list">
+            <div class="vibe-item active" data-vibe="lofi">lo-fi beats 🎹</div>
+            <div class="vibe-item" data-vibe="rain">rainy day 🌧️</div>
+            <div class="vibe-item" data-vibe="cafe">café noise ☕</div>
+            <div class="vibe-item" data-vibe="space">outer space 🚀</div>
+          </div>
+          <div class="vibe-note">* just a mood selector ✨</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIO PLAYER -->
+  <audio id="bgMusic" loop>
+    <source src="assets/track_01.mp3" type="audio/mpeg">
+  </audio>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
