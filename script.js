@@ -17,9 +17,12 @@ import {
   onSnapshot, collection,
   query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 
 const fireApp = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(fireApp);
+const auth = getAuth(fireApp);
 
 const USERS_COL = "users";
 const CHAT_COL = "messages";
@@ -27,6 +30,15 @@ const CHAT_COL = "messages";
 // ─── CONFIG ──────────────────────────────────────────────────────────
 const HEARTBEAT_INTERVAL = 5000;
 const ONLINE_TIMEOUT_MS = 20000;
+
+// sign in automatically
+signInAnonymously(auth)
+  .then(() => {
+    console.log("Signed in anonymously");
+  })
+  .catch((error) => {
+    console.error("Auth error:", error);
+  });
 
 // ─── SESSION ID ──────────────────────────────────────────────────────
 let myId = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
