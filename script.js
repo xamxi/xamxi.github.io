@@ -9,7 +9,6 @@ const FIREBASE_CONFIG = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-
 // ─── FIREBASE INIT ───────────────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -18,7 +17,6 @@ import {
   query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
 
 const fireApp = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(fireApp);
@@ -31,15 +29,6 @@ const CHAT_COL = "messages";
 const HEARTBEAT_INTERVAL = 5000;
 const ONLINE_TIMEOUT_MS = 20000;
 
-// sign in automatically
-signInAnonymously(auth)
-  .then(() => {
-    console.log("Signed in anonymously");
-  })
-  .catch((error) => {
-    console.error("Auth error:", error);
-  });
-
 // ─── SESSION ID ──────────────────────────────────────────────────────
 let myId = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
@@ -48,6 +37,27 @@ let users = {};
 
 let prevOnlineUsers = new Set();
 let isFirstLoad = true;
+
+// ─── 🔥 AUTH FIRST ───────────────────────────────────────────────────
+signInAnonymously(auth)
+  .then(() => {
+    console.log("✅ Signed in anonymously");
+    initApp(); // 👉 start app ONLY after auth
+  })
+  .catch((error) => {
+    console.error("❌ Auth error:", error);
+  });
+
+// ─── INIT APP ────────────────────────────────────────────────────────
+function initApp() {
+  // bind events AFTER auth
+  document.getElementById('joinBtn').addEventListener('click', doJoin);
+  document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+  document.getElementById('chatInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+}
 
 // ─── GET USER BY NAME ────────────────────────────────────────────────
 async function getUserByName(name) {
@@ -109,14 +119,14 @@ async function saveMySession() {
   }
 }
 
-// ─── 🆕 CHAT: SEND MESSAGE ───────────────────────────────────────────
+// ─── CHAT: SEND MESSAGE ──────────────────────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
 
   if (!text || !me) return;
 
-  const id = 'm_' + Date.now();
+  const id = 'm_' + Date.now() + '_' + Math.random();
 
   await setDoc(doc(db, CHAT_COL, id), {
     text,
@@ -129,9 +139,9 @@ async function sendMessage() {
   input.value = '';
 }
 
-// ─── 🆕 CHAT: SYSTEM MESSAGE ─────────────────────────────────────────
+// ─── SYSTEM MESSAGE ──────────────────────────────────────────────────
 async function addSystemMessage(text) {
-  const id = 'm_' + Date.now();
+  const id = 'm_' + Date.now() + '_' + Math.random();
 
   await setDoc(doc(db, CHAT_COL, id), {
     text,
@@ -140,17 +150,14 @@ async function addSystemMessage(text) {
   });
 }
 
-// ─── 🆕 CHAT: SUBSCRIBE ──────────────────────────────────────────────
+// ─── CHAT SUBSCRIBE ──────────────────────────────────────────────────
 function subscribeChat() {
   return onSnapshot(collection(db, CHAT_COL), snapshot => {
     const chat = document.getElementById('chatMessages');
     chat.innerHTML = '';
 
     const msgs = [];
-
-    snapshot.forEach(docSnap => {
-      msgs.push(docSnap.data());
-    });
+    snapshot.forEach(docSnap => msgs.push(docSnap.data()));
 
     msgs.sort((a, b) => a.createdAt - b.createdAt);
 
@@ -176,28 +183,20 @@ function subscribeChat() {
   });
 }
 
-// ─── SUBSCRIBE USERS (JOIN / LEAVE) ──────────────────────────────────
+// ─── USERS SUBSCRIBE ─────────────────────────────────────────────────
 function subscribeUsers() {
   return onSnapshot(collection(db, USERS_COL), snapshot => {
     const fresh = {};
     const currentOnline = new Set();
 
     snapshot.forEach(docSnap => {
-      const u = {
-        id: docSnap.id,
-        ...docSnap.data()
-      };
-
+      const u = { id: docSnap.id, ...docSnap.data() };
       fresh[u.id] = u;
 
-      if (isOnline(u)) {
-        currentOnline.add(u.id);
-      }
+      if (isOnline(u)) currentOnline.add(u.id);
     });
 
     if (!isFirstLoad) {
-
-      // JOIN
       currentOnline.forEach(id => {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
@@ -209,7 +208,6 @@ function subscribeUsers() {
         }
       });
 
-      // LEAVE
       prevOnlineUsers.forEach(id => {
         if (!currentOnline.has(id)) {
           const u = users[id];
@@ -231,8 +229,6 @@ function subscribeUsers() {
 }
 
 // ─── JOIN ────────────────────────────────────────────────────────────
-document.getElementById('joinBtn').addEventListener('click', doJoin);
-
 async function doJoin() {
   const name = document.getElementById('nameInput').value.trim();
 
@@ -273,13 +269,6 @@ async function doJoin() {
   }
 }
 
-// ─── EVENTS ──────────────────────────────────────────────────────────
-document.getElementById('sendBtn').addEventListener('click', sendMessage);
-
-document.getElementById('chatInput').addEventListener('keypress', e => {
-  if (e.key === 'Enter') sendMessage();
-});
-
 // ─── RENDER ──────────────────────────────────────────────────────────
 function renderAll() {
   const list = document.getElementById('userList');
@@ -287,13 +276,9 @@ function renderAll() {
 
   Object.values(users).forEach(u => {
     const div = document.createElement('div');
-
     const online = isOnline(u);
 
-    div.textContent = online
-      ? `🟢 ${u.name}`
-      : `⚫ ${u.name}`;
-
+    div.textContent = online ? `🟢 ${u.name}` : `⚫ ${u.name}`;
     div.style.opacity = online ? '1' : '0.5';
 
     list.appendChild(div);
@@ -307,50 +292,7 @@ function renderAll() {
 window.addEventListener('beforeunload', async () => {
   try {
     await deleteDoc(myDocRef());
-  } catch (e) {
+  } catch {
     console.log("cleanup failed");
   }
 });
-
-// ─── VIBES / BACKGROUND MUSIC ────────────────────────────────────────
-const bgMusic = new Audio();      // create Audio object
-bgMusic.loop = true;
-bgMusic.volume = 0.4;             // optional: adjust default volume
-
-// Vibe items
-const vibeItems = document.querySelectorAll(".vibe-item");
-
-vibeItems.forEach(item => {
-  item.addEventListener("click", () => {
-    // Remove active class from all, set active to clicked
-    vibeItems.forEach(v => v.classList.remove("active"));
-    item.classList.add("active");
-
-    const vibe = item.dataset.vibe;
-
-    // Stop current audio
-    bgMusic.pause();
-    bgMusic.currentTime = 0;
-
-    // Set audio source based on vibe
-    if (vibe === "lofi") {
-      bgMusic.src = "assets/track_01.mp3";
-      bgMusic.play();
-    }
-
-    if (vibe === "rain") {
-      bgMusic.src = "assets/rain.mp3";   // add your rain audio
-      bgMusic.play();
-    }
-
-    if (vibe === "cafe") {
-      bgMusic.src = "assets/cafe.mp3";   // add your café audio
-      bgMusic.play();
-    }
-
-    if (vibe === "space") {
-      bgMusic.src = "assets/space.mp3";  // add your space audio
-      bgMusic.play();
-    }
-  });
-}); 
