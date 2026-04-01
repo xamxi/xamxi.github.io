@@ -296,3 +296,31 @@ window.addEventListener('beforeunload', async () => {
     console.log("cleanup failed");
   }
 });
+
+
+// ─── VIBES ───────────────────────────────────────────────────────────
+function setupVibes() {
+  const audio = document.getElementById('bgMusic');
+  const vibeItems = document.querySelectorAll('.vibe-item');
+
+  const tracks = {
+    lofi: './assets/track_01.mp3',
+    rain: './assets/rain.mp3',
+    cafe: './assets/cafe.mp3',
+    space: './assets/space.mp3'
+  };
+
+  vibeItems.forEach(item => {
+    item.addEventListener('click', () => {
+      const vibe = item.dataset.vibe;
+
+      // 🎧 change music
+      audio.src = tracks[vibe];
+      audio.play().catch(e => console.log("Play blocked:", e));
+
+      // 🎨 update active UI
+      vibeItems.forEach(v => v.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+}
