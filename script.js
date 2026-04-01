@@ -1,12 +1,12 @@
 // ─── FIREBASE CONFIG ─────────────────────────────────────────────────
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyA1eFhk9-Scrqlm0Oes1JevaZNSWCX53JY",
-  authDomain: "fowd-44413.firebaseapp.com",
-  projectId: "fowd-44413",
-  storageBucket: "fowd-44413.firebasestorage.app",
-  messagingSenderId: "946278882747",
-  appId: "1:946278882747:web:c574d824501a7feca2b89e",
-  measurementId: "G-X06Z0MTENB"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 
