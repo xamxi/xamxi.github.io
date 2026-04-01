@@ -57,6 +57,7 @@ function initApp() {
   document.getElementById('chatInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') sendMessage();
   });
+  setupVibes();
 }
 
 // ─── GET USER BY NAME ────────────────────────────────────────────────
@@ -256,6 +257,16 @@ async function doJoin() {
 
     document.getElementById('joinModal').style.display = 'none';
     document.getElementById('mainApp').style.display = '';
+
+    const audio = document.getElementById('bgMusic');
+
+    try {
+      audio.volume = 0.5; // optional
+      audio.play();
+    } catch (e) {
+      console.log("Autoplay blocked:", e);
+    }
+
 
     subscribeUsers();
     subscribeChat();
