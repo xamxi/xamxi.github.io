@@ -635,40 +635,41 @@ function setupVibes() {
     const FADE_SPEED = 0.05;
     const INTERVAL = 40;
 
-    // 🛑 STOP previous animation
     if (fadeInterval) clearInterval(fadeInterval);
 
-    // 🔻 FADE OUT
+    // ── FADE OUT ──
     fadeInterval = setInterval(() => {
       if (audio.volume > FADE_SPEED) {
         audio.volume = Math.max(0, audio.volume - FADE_SPEED);
       } else {
         clearInterval(fadeInterval);
+        fadeInterval = null;
 
-        // 🎵 SWITCH TRACK
         audio.pause();
         audio.src = newSrc;
-        audio.currentTime = 0;
-
-        // 🔥 IMPORTANT FIX: reset volume BEFORE play
+        audio.load(); // ← force reload before play (critical on GitHub Pages)
         audio.volume = 0;
 
-        audio.play().then(() => {
-          // 🔺 FADE IN
-          fadeInterval = setInterval(() => {
-            if (audio.volume < targetVolume - FADE_SPEED) {
-              audio.volume += FADE_SPEED;
-            } else {
-              audio.volume = targetVolume;
-              clearInterval(fadeInterval);
-            }
-          }, INTERVAL);
-        }).catch(e => {
-          console.log("Play blocked:", e);
-        });
+        // ── Wait for canplay before fading in ──
+        audio.addEventListener('canplay', function onCanPlay() {
+          audio.removeEventListener('canplay', onCanPlay); // ← one-time listener
+
+          audio.play().then(() => {
+            fadeInterval = setInterval(() => {
+              if (audio.volume < targetVolume - FADE_SPEED) {
+                audio.volume = Math.min(targetVolume, audio.volume + FADE_SPEED);
+              } else {
+                audio.volume = targetVolume;
+                clearInterval(fadeInterval);
+                fadeInterval = null;
+              }
+            }, INTERVAL);
+          }).catch(e => console.log("Play blocked:", e));
+        }, { once: true });
       }
     }, INTERVAL);
   }
+
 
   vibeItems.forEach(item => {
     item.addEventListener('click', () => {
