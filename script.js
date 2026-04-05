@@ -53,6 +53,9 @@ let users = {};
 let prevOnlineUsers = new Set();
 let isFirstLoad = true;
 
+let lastChangeTime = {};
+const STABLE_DELAY = 3000; // 3 seconds
+
 // ─── 🔥 AUTH FIRST ───────────────────────────────────────────────────
 signInAnonymously(auth)
   .then(() => {
@@ -238,29 +241,34 @@ async function getUsersByName(name) {
 
 
 // ─── TOAST ───────────────────────────────────────────────────────────
+let lastToast = "";
+
 export function showToast(input, vars = {}) {
   let msg;
 
-  // ✅ If it's a translation key
   if (typeof input === 'string' && input.includes('.')) {
-    msg = t(input);
-
-    if (!msg) msg = input; // fallback
+    msg = t(input) || input;
 
     Object.keys(vars).forEach(k => {
       msg = msg.replace(`{${k}}`, vars[k]);
     });
   } else {
-    // ✅ Raw text (rooms.js uses this)
     msg = input;
   }
+
+  // 🚫 prevent duplicate spam
+  if (msg === lastToast) return;
+  lastToast = msg;
 
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
 
   clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), 2600);
+  el._t = setTimeout(() => {
+    el.classList.remove('show');
+    lastToast = "";
+  }, 2600);
 }
 
 // ─── ONLINE CHECK ────────────────────────────────────────────────────
@@ -366,37 +374,59 @@ function subscribeUsers() {
       const u = { id: docSnap.id, ...docSnap.data() };
       fresh[u.id] = u;
 
-      if (isOnline(u)) currentOnline.add(u.id);
+      if (isOnline(u)) {
+        currentOnline.add(u.id);
+      }
     });
 
+    const now = Date.now();
+    const JOIN_WINDOW = 5000; // 🔥 5s = "recent join"
+
     if (!isFirstLoad) {
+      // 🟢 HANDLE JOIN (stable, no spam)
       currentOnline.forEach(id => {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
-          if (u && u.name !== me?.name) {
-            const timeStr = formatTime(u.joinedAt);
-            const msg = t('toast.joined')
-              .replace('{name}', u.name)
-              .replace('{time}', timeStr);
 
-            showToast('toast.joined', { name: u.name, time: timeStr });
-            addSystemMessage(msg, uniqueId);
+          if (u && u.name !== me?.name) {
+            // ✅ Only show if just joined recently
+            if (now - u.joinedAt < JOIN_WINDOW) {
+              const timeStr = formatTime(u.joinedAt);
+
+              showToast('toast.joined', {
+                name: u.name,
+                time: timeStr
+              });
+
+              addSystemMessage(
+                t('toast.joined')
+                  .replace('{name}', u.name)
+                  .replace('{time}', timeStr),
+                `join_${id}` // ✅ unique key
+              );
+            }
           }
         }
       });
 
+      // 🔴 HANDLE LEAVE (simple + reliable)
       prevOnlineUsers.forEach(id => {
         if (!currentOnline.has(id)) {
           const u = users[id];
+
           if (u && u.name !== me?.name) {
-            const msg = t('toast.left').replace('{name}', u.name);
             showToast('toast.left', { name: u.name });
-            addSystemMessage(msg, uniqueId);
+
+            addSystemMessage(
+              t('toast.left').replace('{name}', u.name),
+              `left_${id}` // ✅ unique key
+            );
           }
         }
       });
     }
 
+    // ✅ update state AFTER processing
     isFirstLoad = false;
     prevOnlineUsers = currentOnline;
     users = fresh;
@@ -490,7 +520,10 @@ async function doJoin() {
     initRoomInteractions();
 
     const audio = document.getElementById('bgMusic');
-    audio.play().catch(() => { });
+    audio.muted = true;
+    audio.play().then(() => {
+      audio.muted = false;
+    }).catch(() => { });
 
     subscribeUsers();
     subscribeChat();
@@ -596,33 +629,43 @@ function setupVibes() {
   }
 
   // 🎵 Vibe switching 
+  let fadeInterval = null;
+
   function smoothSwitch(audio, newSrc, targetVolume) {
-    const FADE_SPEED = 0.05; // smaller = smoother
+    const FADE_SPEED = 0.05;
     const INTERVAL = 40;
 
-    // 🔻 FADE OUT
-    let fadeOut = setInterval(() => {
-      if (audio.volume > FADE_SPEED) {
-        audio.volume -= FADE_SPEED;
-      } else {
-        clearInterval(fadeOut);
+    // 🛑 STOP previous animation
+    if (fadeInterval) clearInterval(fadeInterval);
 
-        // switch track
+    // 🔻 FADE OUT
+    fadeInterval = setInterval(() => {
+      if (audio.volume > FADE_SPEED) {
+        audio.volume = Math.max(0, audio.volume - FADE_SPEED);
+      } else {
+        clearInterval(fadeInterval);
+
+        // 🎵 SWITCH TRACK
         audio.pause();
         audio.src = newSrc;
         audio.currentTime = 0;
 
+        // 🔥 IMPORTANT FIX: reset volume BEFORE play
+        audio.volume = 0;
+
         audio.play().then(() => {
           // 🔺 FADE IN
-          let fadeIn = setInterval(() => {
+          fadeInterval = setInterval(() => {
             if (audio.volume < targetVolume - FADE_SPEED) {
               audio.volume += FADE_SPEED;
             } else {
               audio.volume = targetVolume;
-              clearInterval(fadeIn);
+              clearInterval(fadeInterval);
             }
           }, INTERVAL);
-        }).catch(e => console.log("Play blocked:", e));
+        }).catch(e => {
+          console.log("Play blocked:", e);
+        });
       }
     }, INTERVAL);
   }
