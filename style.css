@@ -1223,7 +1223,7 @@ body {
 }
 
 .vibe-item {
-  font-size: 7px;
+  font-size: 8px;
   padding: 7px 8px;
   border: 1px solid transparent;
   cursor: pointer;
@@ -1243,10 +1243,58 @@ body {
 }
 
 .vibe-note {
-  font-size: 5px;
+  font-size: 8px;
   color: var(--text2);
   padding: 4px 8px 6px;
   opacity: .6;
+}
+
+/* Volume Control (Vibes) */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 10px;
+}
+
+.volume-label {
+  font-size: 7px;
+  color: var(--text2);
+  width: 16px;
+  text-align: center;
+}
+
+/* slider track */
+#volumeSlider {
+  flex: 1;
+  appearance: none;
+  height: 6px;
+  background: var(--bg2);
+  border: 2px solid var(--border2);
+  image-rendering: pixelated;
+  cursor: pointer;
+  position: relative;
+}
+
+
+/* slider thumb (pixel style) */
+#volumeSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  background: var(--accent2);
+  border: 2px solid white;
+  box-shadow: 1px 1px 0 #000;
+  cursor: pointer;
+}
+
+#volumeSlider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  background: var(--accent2);
+  border: 2px solid white;
+  box-shadow: 1px 1px 0 #000;
+  cursor: pointer;
 }
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */

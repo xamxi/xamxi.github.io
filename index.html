@@ -166,19 +166,23 @@
           <div class="card-title">🎵 Vibes</div>
           <div class="vibe-list">
             <div class="vibe-item active" data-vibe="lofi">lo-fi beats 🎹</div>
-            <div class="vibe-item" data-vibe="rain">rainy day 🌧️</div>
+            <div class="vibe-item" data-vibe="rain">piano in rainy day 🌧️</div>
             <div class="vibe-item" data-vibe="cafe">café noise ☕</div>
             <div class="vibe-item" data-vibe="space">outer space 🚀</div>
           </div>
           <div class="vibe-note">* just a mood selector ✨</div>
+          <div class="volume-control">
+            <span class="volume-label">🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- AUDIO PLAYER -->
-  <audio id="bgMusic" loop>
-    <source src="/assets/track_01.mp3" type="audio/mpeg">
+  <audio id="bgMusic">
+    <source src="/assets/musics/track_01.mp3" type="audio/mpeg">
   </audio>
 
   <script type="module" src="./script.js"></script>

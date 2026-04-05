@@ -7,7 +7,8 @@ const FIREBASE_CONFIG = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};// ─── LANG INIT ─────────────────────────────────────────────────
+};
+
 
 // ─── LANG INIT ─────────────────────────────────────────────────
 import { LANG } from './lang/index.js';
@@ -479,7 +480,6 @@ async function doJoin() {
     initRoomInteractions();
 
     const audio = document.getElementById('bgMusic');
-    audio.volume = 0.5;
     audio.play().catch(() => { });
 
     subscribeUsers();
@@ -526,23 +526,108 @@ window.addEventListener('beforeunload', async () => {
 function setupVibes() {
   const audio = document.getElementById('bgMusic');
   const vibeItems = document.querySelectorAll('.vibe-item');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeLabel = document.querySelector('.volume-label');
 
   const tracks = {
-    lofi: './assets/track_01.mp3',
-    rain: './assets/rain.mp3',
-    cafe: './assets/cafe.mp3',
-    space: './assets/space.mp3'
+    lofi: './assets/musics/track_01.mp3',
+    rain: './assets/musics/rain.mp3',
+    cafe: './assets/musics/cafe.mp3',
+    space: './assets/musics/space.mp3'
   };
+
+  // Smooth replay 
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration - audio.currentTime < 0.15) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+  });
+
+  // 🔊 Load saved volume (or default)
+  const DEFAULT_VOLUME = 0.5;
+
+  let savedVolume = localStorage.getItem('volume');
+
+  if (savedVolume === null) {
+    // 🆕 first-time user
+    savedVolume = DEFAULT_VOLUME;
+    localStorage.setItem('volume', savedVolume);
+  }
+
+  savedVolume = parseFloat(savedVolume);
+
+  audio.volume = savedVolume;
+  volumeSlider.value = savedVolume;
+  updateVolumeUI(savedVolume);
+
+  // 🎚️ Volume control
+  volumeSlider.addEventListener('input', (e) => {
+    const vol = e.target.value;
+    audio.volume = vol;
+
+    // save
+    localStorage.setItem('volume', vol);
+
+    updateVolumeUI(vol);
+  });
+
+  function updateVolumeUI(vol) {
+    const percent = vol * 100;
+
+    // ✅ REAL dynamic fill
+    volumeSlider.style.background =
+      `linear-gradient(to right, var(--accent3) ${percent}%, var(--bg2) ${percent}%)`;
+
+    // icon
+    if (vol == 0) volumeLabel.textContent = '🔇';
+    else if (vol < 0.5) volumeLabel.textContent = '🔉';
+    else volumeLabel.textContent = '🔊';
+  }
+
+  // 🎵 Vibe switching 
+  function smoothSwitch(audio, newSrc, targetVolume) {
+    const FADE_SPEED = 0.05; // smaller = smoother
+    const INTERVAL = 40;
+
+    // 🔻 FADE OUT
+    let fadeOut = setInterval(() => {
+      if (audio.volume > FADE_SPEED) {
+        audio.volume -= FADE_SPEED;
+      } else {
+        clearInterval(fadeOut);
+
+        // switch track
+        audio.pause();
+        audio.src = newSrc;
+        audio.currentTime = 0;
+
+        audio.play().then(() => {
+          // 🔺 FADE IN
+          let fadeIn = setInterval(() => {
+            if (audio.volume < targetVolume - FADE_SPEED) {
+              audio.volume += FADE_SPEED;
+            } else {
+              audio.volume = targetVolume;
+              clearInterval(fadeIn);
+            }
+          }, INTERVAL);
+        }).catch(e => console.log("Play blocked:", e));
+      }
+    }, INTERVAL);
+  }
 
   vibeItems.forEach(item => {
     item.addEventListener('click', () => {
       const vibe = item.dataset.vibe;
 
-      // 🎧 change music
-      audio.src = tracks[vibe];
-      audio.play().catch(e => console.log("Play blocked:", e));
+      // avoid reload if same track
+      if (audio.src.includes(tracks[vibe])) return;
 
-      // 🎨 update active UI
+      const targetVolume = parseFloat(volumeSlider.value);
+      smoothSwitch(audio, tracks[vibe], targetVolume);
+
+      // UI active
       vibeItems.forEach(v => v.classList.remove('active'));
       item.classList.add('active');
     });
