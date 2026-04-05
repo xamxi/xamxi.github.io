@@ -626,7 +626,16 @@ function setupVibes() {
   // 🎵 Vibe switching 
   let fadeInterval = null;
 
+  // Fix the "same track" guard — compare resolved URLs
+  function isSameTrack(audio, newSrc) {
+    const a = new URL(newSrc, location.href).href;
+    const b = audio.src; // already absolute
+    return a === b;
+  }
+
   function smoothSwitch(audio, newSrc, targetVolume) {
+    if (isSameTrack(audio, newSrc)) return; // ✅ correct comparison
+
     const FADE_SPEED = 0.04;
     const INTERVAL = 50;
 
@@ -635,27 +644,23 @@ function setupVibes() {
       fadeInterval = null;
     }
 
-    // ✅ Snapshot the current volume before we touch anything
-    const startVolume = audio.volume;
-
-    // ✅ Switch source immediately while user gesture is still active
     audio.pause();
     audio.src = newSrc;
     audio.loop = true;
     audio.volume = 0;
 
-    // ✅ Call play() RIGHT NOW — still within the click gesture window
+    // ✅ load() forces the browser to re-fetch on GitHub Pages
+    audio.load();
+
     const playPromise = audio.play();
 
     if (!playPromise) {
-      // very old browser fallback
       audio.volume = targetVolume;
       return;
     }
 
     playPromise
       .then(() => {
-        // ✅ Playback confirmed — now fade in
         fadeInterval = setInterval(() => {
           const next = Math.min(targetVolume, audio.volume + FADE_SPEED);
           audio.volume = next;
@@ -666,9 +671,10 @@ function setupVibes() {
         }, INTERVAL);
       })
       .catch(e => {
-        // Edge blocked it anyway — fallback: just set volume directly
         console.warn("Autoplay blocked:", e);
-        audio.volume = targetVolume;
+        // ✅ Retry once on user-gesture contexts (GitHub Pages quirk)
+        audio.load();
+        audio.play().then(() => { audio.volume = targetVolume; }).catch(() => { });
       });
   }
 
