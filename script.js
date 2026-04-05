@@ -680,8 +680,25 @@ function setupVibes() {
   }
 
 
+  function bindTap(el, handler) {
+    let touched = false;
+
+    el.addEventListener('touchstart', (e) => {
+      touched = true;
+      handler(e);
+    }, { passive: true });
+
+    el.addEventListener('click', (e) => {
+      if (touched) {
+        touched = false;
+        return; // prevent duplicate
+      }
+      handler(e);
+    });
+  }
+
   vibeItems.forEach(item => {
-    item.addEventListener('click', () => {
+    bindTap(item, () => {
       const vibe = item.dataset.vibe;
 
       // avoid reload if same track
