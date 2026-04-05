@@ -396,17 +396,18 @@ function countOnlineUsers(usersArr) {
 
 // ─── JOIN ────────────────────────────────────────────────────────────
 async function doJoin() {
-  document.getElementById('joinModal').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-
-  moveLangToHeader();
-
   const name = document.getElementById('nameInput').value.trim();
 
+  // 🚫 BLOCK EMPTY NAME 
   if (!name) {
     showToast('enter your name first! 👾');
     return;
   }
+
+  document.getElementById('joinModal').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+
+  moveLangToHeader();
 
   try {
     const sameNameUsers = await getUsersByName(name);
