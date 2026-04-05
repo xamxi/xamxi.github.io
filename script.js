@@ -238,13 +238,29 @@ async function getUsersByName(name) {
 
 
 // ─── TOAST ───────────────────────────────────────────────────────────
-export function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+export function showToast(input, vars = {}) {
+  let msg;
 
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 2600);
+  // ✅ If it's a translation key
+  if (typeof input === 'string' && input.includes('.')) {
+    msg = t(input);
+
+    if (!msg) msg = input; // fallback
+
+    Object.keys(vars).forEach(k => {
+      msg = msg.replace(`{${k}}`, vars[k]);
+    });
+  } else {
+    // ✅ Raw text (rooms.js uses this)
+    msg = input;
+  }
+
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 // ─── ONLINE CHECK ────────────────────────────────────────────────────
@@ -359,9 +375,11 @@ function subscribeUsers() {
           const u = fresh[id];
           if (u && u.name !== me?.name) {
             const timeStr = formatTime(u.joinedAt);
-            const msg = `🟢 ${u.name} joined at ${timeStr}`;
-            const uniqueId = `join_${u.id}`; // 🔥 KEY PART
-            showToast(msg);
+            const msg = t('toast.joined')
+              .replace('{name}', u.name)
+              .replace('{time}', timeStr);
+
+            showToast('toast.joined', { name: u.name, time: timeStr });
             addSystemMessage(msg, uniqueId);
           }
         }
@@ -371,9 +389,8 @@ function subscribeUsers() {
         if (!currentOnline.has(id)) {
           const u = users[id];
           if (u && u.name !== me?.name) {
-            const msg = `⚫ ${u.name} left`;
-            const uniqueId = `leave_${u.id}`;
-            showToast(msg);
+            const msg = t('toast.left').replace('{name}', u.name);
+            showToast('toast.left', { name: u.name });
             addSystemMessage(msg, uniqueId);
           }
         }
@@ -400,7 +417,7 @@ async function doJoin() {
 
   // 🚫 BLOCK EMPTY NAME — before any UI change
   if (!name) {
-    showToast('enter your name first! 👾');
+    showToast('toast.enterName');
     return;
   }
 
@@ -418,14 +435,14 @@ async function doJoin() {
 
     // 🧱 HARD LIMIT CHECK — before any UI change
     if (onlineCount >= MAX_ONLINE_USERS) {
-      showToast('🚫 room is full (max 15 users)');
+      showToast('toast.roomFull');
       return;
     }
 
     // 🔁 DUPLICATE NAME CHECK — before any UI change
     const onlineUser = sameNameUsers.find(u => isOnline(u));
     if (onlineUser) {
-      showToast('❌ username already taken (currently online)');
+      showToast('toast.nameTaken');
       return;
     }
 
@@ -441,7 +458,7 @@ async function doJoin() {
         room: reusedUser.room ?? null,
         joinedAt: reusedUser.joinedAt
       };
-      showToast(`🔁 welcome back, ${name}!`);
+      showToast('toast.welcomeBack', { name });
     } else {
       // ✅ NEW USER
       me = {
@@ -451,7 +468,7 @@ async function doJoin() {
         room: null,
         joinedAt: Date.now()
       };
-      showToast(`🎉 welcome, ${name}!`);
+      showToast('toast.welcome', { name });
     }
 
     await saveMySession();
@@ -483,7 +500,7 @@ async function doJoin() {
 
   } catch (e) {
     console.error(e);
-    showToast('something went wrong 😢');
+    showToast('toast.error');
   }
 }
 

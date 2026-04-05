@@ -9,6 +9,17 @@ const vi = {
   playahRoom: "🎮 Phòng chơi (real personality)",
   chatPlaceholder: "nói gì đó đi... người đừng lặng im đến thế...",
 
+  toast: {
+    enterName: "nhập tên trước đi 👾",
+    roomFull: "🚫 phòng đã đầy (tối đa 15 người)",
+    nameTaken: "❌ tên đã có người dùng (đang online)",
+    welcome: "🎉 chào mừng, {name}!",
+    welcomeBack: "🔁 chào mừng quay lại, {name}!",
+    error: "có lỗi rồi 😢",
+    joined: "🟢 {name} đã vào lúc {time}",
+    left: "⚫ {name} đã rời"
+  },
+
   room: {
     chalk: [
       'học đi! ✏️ (nói vậy thôi)',

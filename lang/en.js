@@ -9,6 +9,17 @@ const en = {
   playahRoom: "🎮 Playah room",
   chatPlaceholder: "say something...",
 
+  toast: {
+    enterName: "enter your name first! 👾",
+    roomFull: "🚫 room is full (max 15 users)",
+    nameTaken: "❌ username already taken (currently online)",
+    welcome: "🎉 welcome, {name}!",
+    welcomeBack: "🔁 welcome back, {name}!",
+    error: "something went wrong 😢",
+    joined: "🟢 {name} joined at {time}",
+    left: "⚫ {name} left"
+  },
+
   room: {
     chalk: ['study hard! ✏️', 'you got this!', 'deep focus 🎯', 'no breaks lol', 'brain = full'],
     books: [
