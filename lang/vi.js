@@ -74,8 +74,8 @@ const vi = {
       '🌩️ giông bão = nhạc nền miễn phí.'
     ],
     curtain: '🎭 rèm bay bay như phim drama.',
-    floorLampOn: '💡 vibe quay lại rồi đó.',
-    floorLampOff: '🌑 chế độ gamer trầm cảm.'
+    floorLampOn: '💡 ánh sáng không tốt cho gamer!',
+    floorLampOff: '🌑 mode on! vibing! gaming!'
   }
 };
 
