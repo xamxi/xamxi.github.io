@@ -1275,6 +1275,11 @@ body {
   image-rendering: pixelated;
   cursor: pointer;
   position: relative;
+  touch-action: none;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+  -webkit-appearance: none;
 }
 
 

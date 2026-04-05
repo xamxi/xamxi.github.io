@@ -601,15 +601,28 @@ function setupVibes() {
   updateVolumeUI(savedVolume);
 
   // 🎚️ Volume control
-  volumeSlider.addEventListener('input', (e) => {
-    const vol = e.target.value;
+  function setVolume(vol) {
+    vol = parseFloat(vol);
+
     audio.volume = vol;
-
-    // save
     localStorage.setItem('volume', vol);
-
     updateVolumeUI(vol);
+  }
+
+  // 🎯 Desktop + modern
+  volumeSlider.addEventListener('input', (e) => {
+    setVolume(e.target.value);
   });
+
+  // 📱 Mobile fallback (VERY IMPORTANT)
+  volumeSlider.addEventListener('change', (e) => {
+    setVolume(e.target.value);
+  });
+
+  // 🔥 iOS Safari fix (dragging)
+  volumeSlider.addEventListener('touchmove', (e) => {
+    setVolume(e.target.value);
+  }, { passive: true });
 
   function updateVolumeUI(vol) {
     const percent = vol * 100;
