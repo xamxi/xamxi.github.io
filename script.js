@@ -580,12 +580,7 @@ function setupVibes() {
   };
 
   // Smooth replay 
-  audio.addEventListener('timeupdate', () => {
-    if (audio.duration - audio.currentTime < 0.15) {
-      audio.currentTime = 0;
-      audio.play();
-    }
-  });
+  audio.loop = true;
 
   // 🔊 Load saved volume (or default)
   const DEFAULT_VOLUME = 0.5;
@@ -632,42 +627,49 @@ function setupVibes() {
   let fadeInterval = null;
 
   function smoothSwitch(audio, newSrc, targetVolume) {
-    const FADE_SPEED = 0.05;
-    const INTERVAL = 40;
+    const FADE_SPEED = 0.04;
+    const INTERVAL = 50;
 
-    if (fadeInterval) clearInterval(fadeInterval);
+    if (fadeInterval) {
+      clearInterval(fadeInterval);
+      fadeInterval = null;
+    }
 
-    // ── FADE OUT ──
-    fadeInterval = setInterval(() => {
-      if (audio.volume > FADE_SPEED) {
-        audio.volume = Math.max(0, audio.volume - FADE_SPEED);
-      } else {
-        clearInterval(fadeInterval);
-        fadeInterval = null;
+    // ✅ Snapshot the current volume before we touch anything
+    const startVolume = audio.volume;
 
-        audio.pause();
-        audio.src = newSrc;
-        audio.load(); // ← force reload before play (critical on GitHub Pages)
-        audio.volume = 0;
+    // ✅ Switch source immediately while user gesture is still active
+    audio.pause();
+    audio.src = newSrc;
+    audio.loop = true;
+    audio.volume = 0;
 
-        // ── Wait for canplay before fading in ──
-        audio.addEventListener('canplay', function onCanPlay() {
-          audio.removeEventListener('canplay', onCanPlay); // ← one-time listener
+    // ✅ Call play() RIGHT NOW — still within the click gesture window
+    const playPromise = audio.play();
 
-          audio.play().then(() => {
-            fadeInterval = setInterval(() => {
-              if (audio.volume < targetVolume - FADE_SPEED) {
-                audio.volume = Math.min(targetVolume, audio.volume + FADE_SPEED);
-              } else {
-                audio.volume = targetVolume;
-                clearInterval(fadeInterval);
-                fadeInterval = null;
-              }
-            }, INTERVAL);
-          }).catch(e => console.log("Play blocked:", e));
-        }, { once: true });
-      }
-    }, INTERVAL);
+    if (!playPromise) {
+      // very old browser fallback
+      audio.volume = targetVolume;
+      return;
+    }
+
+    playPromise
+      .then(() => {
+        // ✅ Playback confirmed — now fade in
+        fadeInterval = setInterval(() => {
+          const next = Math.min(targetVolume, audio.volume + FADE_SPEED);
+          audio.volume = next;
+          if (next >= targetVolume) {
+            clearInterval(fadeInterval);
+            fadeInterval = null;
+          }
+        }, INTERVAL);
+      })
+      .catch(e => {
+        // Edge blocked it anyway — fallback: just set volume directly
+        console.warn("Autoplay blocked:", e);
+        audio.volume = targetVolume;
+      });
   }
 
 
