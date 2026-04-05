@@ -573,11 +573,12 @@ function setupVibes() {
   const volumeLabel = document.querySelector('.volume-label');
 
   const tracks = {
-    lofi: './assets/musics/track_01.mp3',
-    rain: './assets/musics/rain.mp3',
-    cafe: './assets/musics/cafe.mp3',
-    space: './assets/musics/space.mp3'
+    lofi: new URL('./assets/musics/track_01.mp3', import.meta.url).href,
+    rain: new URL('./assets/musics/rain.mp3', import.meta.url).href,
+    cafe: new URL('./assets/musics/cafe.mp3', import.meta.url).href,
+    space: new URL('./assets/musics/space.mp3', import.meta.url).href
   };
+
 
   // Smooth replay 
   audio.loop = true;
