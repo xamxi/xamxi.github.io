@@ -5,11 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Friends on Workdate ✨</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
+  <button id="langBtn" class="pixel-btn lang-global">🌐 EN</button>
+
   <div class="stars" id="stars"></div> <!-- JOIN MODAL -->
   <div class="modal-overlay" id="joinModal">
     <div class="modal-box">
@@ -31,7 +32,7 @@
     <!-- HEADER -->
     <div class="header">
       <div class="header-title">✨ FRIENDS ON WORKDATE</div>
-      <div class="header-right">
+      <div class="header-right" id="headerRight">
         <div class="online-badge"><span id="onlineCount">1</span> online</div>
         <div class="my-tag" id="myTag"></div>
       </div>
@@ -154,7 +155,7 @@
           <div class="card-title">💬 Chat</div>
           <div class="chat-messages" id="chatMessages"></div>
           <div class="chat-input-row">
-            <input type="text" id="chatInput" class="chat-input" placeholder="say something..." maxlength="80">
+            <input type="text" id="chatInput" class="chat-input" placeholder="say something..." maxlength="200">
             <button class="send-btn" id="sendBtn">▶</button>
           </div>
         </div>
@@ -178,7 +179,7 @@
     <source src="/assets/track_01.mp3" type="audio/mpeg">
   </audio>
 
-  <script type="module" src="/script.js"></script>
+  <script type="module" src="./script.js"></script>
 </body>
 
 </html>

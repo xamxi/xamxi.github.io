@@ -7,7 +7,21 @@ const FIREBASE_CONFIG = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
+};// ─── LANG INIT ─────────────────────────────────────────────────
+
+// ─── LANG INIT ─────────────────────────────────────────────────
+import { LANG } from './lang/index.js';
+function t(path) {
+  const keys = path.split('.');
+  let value = LANG[currentLang];
+
+  for (const key of keys) {
+    value = value?.[key];
+  }
+
+  return value;
+}
+let currentLang = localStorage.getItem("lang") || "en";
 
 // ─── FIREBASE INIT ───────────────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -50,6 +64,10 @@ signInAnonymously(auth)
 
 // ─── INIT APP ────────────────────────────────────────────────────────
 function initApp() {
+  // lang
+  document.getElementById('langBtn').addEventListener('click', toggleLang);
+  applyLang();
+
   // bind events AFTER auth
   document.getElementById('joinBtn').addEventListener('click', doJoin);
   document.getElementById('sendBtn').addEventListener('click', sendMessage);
@@ -57,35 +75,169 @@ function initApp() {
   document.getElementById('chatInput').addEventListener('keypress', e => {
     if (e.key === 'Enter') sendMessage();
   });
+  initColorPicker();
   setupVibes();
+  initClock();
+
+}
+
+// ─── LANGUAGE TOGGLE ───────────────────────────────────────────────
+const langBtn = document.getElementById("langBtn");
+const headerRight = document.getElementById("headerRight");
+
+function moveLangToHeader() {
+  const langBtn = document.getElementById("langBtn");
+  const headerRight = document.getElementById("headerRight");
+
+  if (!langBtn || !headerRight) return;
+
+  langBtn.classList.remove("lang-global"); // remove floating style
+  headerRight.prepend(langBtn); // move into header
+}
+
+function toggleLang() {
+  currentLang = currentLang === "en" ? "vi" : "en";
+  localStorage.setItem("lang", currentLang);
+  applyLang();
+
+  // ✅ RE-INIT ROOM TEXT
+  if (me) {
+    initRoomInteractions();
+  }
+}
+
+function applyLang() {
+  // JOIN MODAL
+  document.querySelector('.modal-title').textContent = t('title');
+  document.querySelector('.modal-sub').textContent = t('subtitle');
+  document.getElementById('nameInput').placeholder = t('namePlaceholder');
+  document.querySelector('.color-label').textContent = t('pickColor');
+  document.getElementById('joinBtn').textContent = t('join');
+
+  // HEADER
+  document.querySelector('.header-title').textContent = `✨ ${t('title')}`;
+  document.querySelector('.online-badge').innerHTML =
+    `<span id="onlineCount">${document.getElementById('onlineCount').textContent}</span> ${t('online')}`;
+
+  // ROOMS
+  document.querySelector('#card-study .card-title').textContent = t('studyRoom');
+  document.querySelector('#card-playah .card-title').textContent = t('playahRoom');
+
+  // CHAT
+  document.getElementById('chatInput').placeholder = t('chatPlaceholder');
+
+  // BUTTON TEXT
+  document.getElementById('langBtn').textContent =
+    currentLang === "en" ? "🌐 EN" : "🌐 VI";
+}
+
+// ─── COLOR PICKER ─────────────────────────────────────────────────
+const COLORS = [
+  "#ff6b6b",
+  "#feca57",
+  "#48dbfb",
+  "#1dd1a1",
+  "#5f27cd",
+  "#ff9ff3"
+];
+
+let selectedColorIdx = 0;
+
+function initColorPicker() {
+  const container = document.getElementById("colorSwatches");
+
+  COLORS.forEach((color, idx) => {
+    const swatch = document.createElement("div");
+    swatch.className = "swatch";
+    swatch.style.background = color;
+
+    if (idx === 0) swatch.classList.add("selected");
+
+    swatch.addEventListener("click", () => {
+      selectedColorIdx = idx;
+
+      document.querySelectorAll(".swatch").forEach(s =>
+        s.classList.remove("selected")
+      );
+
+      swatch.classList.add("selected");
+    });
+
+    container.appendChild(swatch);
+  });
+}
+
+// ─── ROOM ────────────────────────────────────────────────────────────
+import { initRoomInteractions } from './rooms.js';
+
+// ─── CLOCK ───────────────────────────────────────────
+function formatTime(ts) {
+  const d = new Date(ts);
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${hh}:${mm}:${ss}`;
+}
+
+function initClock() {
+  // render 12 tick marks
+  const tickContainer = document.getElementById('tickMarks');
+  for (let i = 0; i < 60; i++) {
+    const tick = document.createElement('div');
+    tick.className = i % 5 === 0 ? 'tick-mark major' : 'tick-mark';
+    tick.style.transform = `rotate(${i * 6}deg)`;
+    tickContainer.appendChild(tick);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    const s = now.getSeconds();
+
+    const hourDeg = (h % 12) * 30 + m * 0.5;
+    const minuteDeg = m * 6 + s * 0.1;
+    const secondDeg = s * 6;
+
+    document.getElementById('hour').style.transform = `rotate(${hourDeg}deg)`;
+    document.getElementById('minute').style.transform = `rotate(${minuteDeg}deg)`;
+    document.getElementById('second').style.transform = `rotate(${secondDeg}deg)`;
+
+    // digital time
+    const hh = String(h).padStart(2, '0');
+    const mm = String(m).padStart(2, '0');
+    const ss = String(s).padStart(2, '0');
+    document.getElementById('digitalTime').textContent = `${hh}:${mm}:${ss}`;
+
+    // date
+    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    document.getElementById('clockDate').textContent =
+      `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  }
+
+  updateClock();
+  setInterval(updateClock, 1000);
 }
 
 // ─── GET USER BY NAME ────────────────────────────────────────────────
-async function getUserByName(name) {
+// ─── GET USERS BY NAME (FIXED) ───────────────────────────────
+async function getUsersByName(name) {
   const q = query(collection(db, USERS_COL), where("name", "==", name));
   const snapshot = await getDocs(q);
 
-  if (snapshot.empty) return null;
-  return snapshot.docs[0].data();
+  if (snapshot.empty) return [];
+
+  return snapshot.docs.map(docSnap => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
 }
 
-// ─── DELETE DUPLICATE USERS ──────────────────────────────────────────
-async function deleteUsersByName(name) {
-  const q = query(collection(db, USERS_COL), where("name", "==", name));
-  const snapshot = await getDocs(q);
 
-  if (snapshot.empty) return;
-
-  const deletes = [];
-  snapshot.forEach(docSnap => {
-    deletes.push(deleteDoc(doc(db, USERS_COL, docSnap.id)));
-  });
-
-  await Promise.all(deletes);
-}
 
 // ─── TOAST ───────────────────────────────────────────────────────────
-function showToast(msg) {
+export function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
@@ -141,8 +293,8 @@ async function sendMessage() {
 }
 
 // ─── SYSTEM MESSAGE ──────────────────────────────────────────────────
-async function addSystemMessage(text) {
-  const id = 'm_' + Date.now() + '_' + Math.random();
+async function addSystemMessage(text, uniqueKey = null) {
+  const id = uniqueKey || ('m_' + Date.now() + '_' + Math.random());
 
   await setDoc(doc(db, CHAT_COL, id), {
     text,
@@ -150,7 +302,6 @@ async function addSystemMessage(text) {
     createdAt: Date.now()
   });
 }
-
 // ─── CHAT SUBSCRIBE ──────────────────────────────────────────────────
 function subscribeChat() {
   return onSnapshot(collection(db, CHAT_COL), snapshot => {
@@ -164,17 +315,21 @@ function subscribeChat() {
 
     msgs.forEach(m => {
       const div = document.createElement('div');
+      const time = formatTime(m.createdAt);
 
       if (m.type === "system") {
         div.className = 'chat-msg system-msg';
-        div.textContent = m.text;
+        div.innerHTML = `
+      <span class="msg-time">[${time}]</span> ${m.text}
+    `;
       } else {
         div.className = 'chat-msg';
         div.innerHTML = `
-          <span style="color:hsl(${m.colorIdx * 60},70%,70%)">
-            ${m.name}
-          </span>: ${m.text}
-        `;
+      <span class="msg-time">[${time}]</span>
+      <span style="color:hsl(${m.colorIdx * 60},70%,70%)">
+        ${m.name}
+      </span>: ${m.text}
+    `;
       }
 
       chat.appendChild(div);
@@ -202,9 +357,11 @@ function subscribeUsers() {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
           if (u && u.name !== me?.name) {
-            const msg = `🟢 ${u.name} joined`;
+            const timeStr = formatTime(u.joinedAt);
+            const msg = `🟢 ${u.name} joined at ${timeStr}`;
+            const uniqueId = `join_${u.id}`; // 🔥 KEY PART
             showToast(msg);
-            addSystemMessage(msg);
+            addSystemMessage(msg, uniqueId);
           }
         }
       });
@@ -214,8 +371,9 @@ function subscribeUsers() {
           const u = users[id];
           if (u && u.name !== me?.name) {
             const msg = `⚫ ${u.name} left`;
+            const uniqueId = `leave_${u.id}`;
             showToast(msg);
-            addSystemMessage(msg);
+            addSystemMessage(msg, uniqueId);
           }
         }
       });
@@ -229,8 +387,19 @@ function subscribeUsers() {
   });
 }
 
+// ─── LIMIT USERS ───────────────────────────────────────────────────
+const MAX_ONLINE_USERS = 15;
+function countOnlineUsers(usersArr) {
+  return usersArr.filter(u => isOnline(u)).length;
+}
+
 // ─── JOIN ────────────────────────────────────────────────────────────
 async function doJoin() {
+  document.getElementById('joinModal').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+
+  moveLangToHeader();
+
   const name = document.getElementById('nameInput').value.trim();
 
   if (!name) {
@@ -239,34 +408,79 @@ async function doJoin() {
   }
 
   try {
-    const existingUser = await getUserByName(name);
-    await deleteUsersByName(name);
+    const sameNameUsers = await getUsersByName(name);
 
-    me = {
-      id: myId,
-      name,
-      colorIdx: existingUser?.colorIdx ?? Math.floor(Math.random() * 6),
-      room: null,
-      joinedAt: Date.now()
-    };
+    // 🔥 Get ALL users (for counting)
+    const allUsersSnapshot = await getDocs(collection(db, USERS_COL));
+    const allUsers = allUsersSnapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    const onlineCount = countOnlineUsers(allUsers);
+
+    // 🧱 HARD LIMIT CHECK
+    if (onlineCount >= MAX_ONLINE_USERS) {
+      showToast('🚫 room is full (max 15 users)');
+      return;
+    }
+
+    // 🔁 DUPLICATE NAME CHECK
+    const onlineUser = sameNameUsers.find(u => isOnline(u));
+
+    if (onlineUser) {
+      showToast('❌ username already taken (currently online)');
+      return;
+    }
+
+    let reusedUser = sameNameUsers[0];
+
+    if (reusedUser) {
+      // ✅ RESUME OFFLINE USER
+      myId = reusedUser.id;
+
+      me = {
+        id: reusedUser.id,
+        name: reusedUser.name,
+        colorIdx: reusedUser.colorIdx,
+        room: reusedUser.room ?? null,
+        joinedAt: reusedUser.joinedAt
+      };
+
+      showToast(`🔁 welcome back, ${name}!`);
+
+    } else {
+      // ✅ NEW USER
+      me = {
+        id: myId,
+        name,
+        colorIdx: selectedColorIdx,
+        room: null,
+        joinedAt: Date.now()
+      };
+
+      showToast(`🎉 welcome, ${name}!`);
+    }
 
     await saveMySession();
 
-    showToast(`welcome, ${name}! 🎉`);
-    await addSystemMessage(`🟢 ${name} joined`);
+    // 🔥 Only announce NEW user
+    if (!reusedUser) {
+      const timeStr = formatTime(me.joinedAt);
+      const msg = `🟢 ${me.name} joined at ${timeStr}`;
+      const uniqueId = `join_${me.id}`;
+      await addSystemMessage(msg, uniqueId);
+    }
 
+    // ─── UI INIT ─────────────────────────
     document.getElementById('joinModal').style.display = 'none';
     document.getElementById('mainApp').style.display = '';
 
+    initRoomInteractions();
+
     const audio = document.getElementById('bgMusic');
-
-    try {
-      audio.volume = 0.5; // optional
-      audio.play();
-    } catch (e) {
-      console.log("Autoplay blocked:", e);
-    }
-
+    audio.volume = 0.5;
+    audio.play().catch(() => { });
 
     subscribeUsers();
     subscribeChat();
@@ -307,7 +521,6 @@ window.addEventListener('beforeunload', async () => {
     console.log("cleanup failed");
   }
 });
-
 
 // ─── VIBES ───────────────────────────────────────────────────────────
 function setupVibes() {
