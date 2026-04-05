@@ -1,5 +1,5 @@
 const vi = {
-  title: "HỘI BẠN NGỒI LÀM CHO CÓ",
+  title: "HỘI ANH CHỊ EM ĐI WORKDATE",
   subtitle: "nhập tên đi rồi tính tiếp",
   namePlaceholder: "tên của bạn... (đừng ghi 'abc')",
   pickColor: "chọn aura của bạn:",
