@@ -398,16 +398,11 @@ function countOnlineUsers(usersArr) {
 async function doJoin() {
   const name = document.getElementById('nameInput').value.trim();
 
-  // 🚫 BLOCK EMPTY NAME 
+  // 🚫 BLOCK EMPTY NAME — before any UI change
   if (!name) {
     showToast('enter your name first! 👾');
     return;
   }
-
-  document.getElementById('joinModal').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-
-  moveLangToHeader();
 
   try {
     const sameNameUsers = await getUsersByName(name);
@@ -421,15 +416,14 @@ async function doJoin() {
 
     const onlineCount = countOnlineUsers(allUsers);
 
-    // 🧱 HARD LIMIT CHECK
+    // 🧱 HARD LIMIT CHECK — before any UI change
     if (onlineCount >= MAX_ONLINE_USERS) {
       showToast('🚫 room is full (max 15 users)');
       return;
     }
 
-    // 🔁 DUPLICATE NAME CHECK
+    // 🔁 DUPLICATE NAME CHECK — before any UI change
     const onlineUser = sameNameUsers.find(u => isOnline(u));
-
     if (onlineUser) {
       showToast('❌ username already taken (currently online)');
       return;
@@ -440,7 +434,6 @@ async function doJoin() {
     if (reusedUser) {
       // ✅ RESUME OFFLINE USER
       myId = reusedUser.id;
-
       me = {
         id: reusedUser.id,
         name: reusedUser.name,
@@ -448,9 +441,7 @@ async function doJoin() {
         room: reusedUser.room ?? null,
         joinedAt: reusedUser.joinedAt
       };
-
       showToast(`🔁 welcome back, ${name}!`);
-
     } else {
       // ✅ NEW USER
       me = {
@@ -460,7 +451,6 @@ async function doJoin() {
         room: null,
         joinedAt: Date.now()
       };
-
       showToast(`🎉 welcome, ${name}!`);
     }
 
@@ -474,10 +464,12 @@ async function doJoin() {
       await addSystemMessage(msg, uniqueId);
     }
 
-    // ─── UI INIT ─────────────────────────
+    // ✅ FLIP UI — only once, only here, after ALL checks pass
     document.getElementById('joinModal').style.display = 'none';
     document.getElementById('mainApp').style.display = '';
+    moveLangToHeader();
 
+    // ─── UI INIT ─────────────────────────
     initRoomInteractions();
 
     const audio = document.getElementById('bgMusic');
