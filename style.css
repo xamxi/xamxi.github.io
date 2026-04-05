@@ -266,16 +266,15 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 220px;
+  grid-template-columns: 1fr 180px 320px;
   gap: 12px;
   align-items: start;
 }
 
 .rooms-col {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: start;
 }
 
 /* ─── CARD ───────────────────────────────────────────── */
@@ -834,8 +833,13 @@ body {
 }
 
 /* ─── CLOCK ──────────────────────────────────────────── */
+.clock-col {
+  display: flex;
+  flex-direction: column;
+}
+
 .clock-card {
-  width: 160px;
+  width: 100%;
 }
 
 .clock-wrap {
