@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
-import { initButler } from './butler/index.js';
+// import { initButler } from './butler/index.js';
 import { initRoomInteractions } from './rooms.js';
 import { registerCharHandlers, syncAllRooms } from './characters.js';
 
