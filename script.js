@@ -9,10 +9,11 @@ const FIREBASE_CONFIG = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
-// import { initButler } from './butler/index.js'; <- Adjust
+import { initButler } from './butler/index.js';
 import { initRoomInteractions } from './rooms.js';
 import { registerCharHandlers, syncAllRooms } from './characters.js';
 
@@ -41,11 +42,9 @@ const CHAT_COL = "messages";
 
 const HEARTBEAT_INTERVAL = 5000;
 const ONLINE_TIMEOUT_MS = 20000;
-// FIX: STABLE_DELAY and JOIN_WINDOW_MS were declared but never used.
-// They are now wired into the join-detection debounce below.
 const STABLE_DELAY = 3000;
-const JOIN_WINDOW_MS = 5000;
 const MAX_ONLINE_USERS = 15;
+const JOIN_WINDOW_MS = 5000;
 
 const COLORS = [
   "#ff6b6b",
@@ -64,14 +63,8 @@ let me = null;
 let users = {};
 let prevOnlineUsers = new Set();
 let isFirstLoad = true;
+let lastChangeTime = {};
 let selectedColorIdx = 0;
-
-// FIX: Store unsubscribe handles so we never stack duplicate listeners.
-let unsubUsers = null;
-let unsubChat = null;
-
-// FIX: Store heartbeat interval ID so it can be cleared on re-join.
-let heartbeatTimer = null;
 
 // ─── LANGUAGE ─────────────────────────────────────────────────────────────────
 
@@ -101,7 +94,8 @@ function applyLang() {
 
   // Header
   document.querySelector('.header-title').textContent = `✨ ${t('title')}`;
-  document.querySelector('.online-badge-text').textContent = t('online');
+  document.querySelector('.online-badge').innerHTML =
+    `<span id="onlineCount">${document.getElementById('onlineCount').textContent}</span> ${t('online')}`;
 
   // Rooms
   document.querySelector('#card-study .card-title').textContent = t('studyRoom');
@@ -177,6 +171,7 @@ function initClock() {
   const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
+  // Render 60 tick marks
   const tickContainer = document.getElementById('tickMarks');
   for (let i = 0; i < 60; i++) {
     const tick = document.createElement('div');
@@ -207,44 +202,25 @@ function initClock() {
   setInterval(updateClock, 1000);
 }
 
-// ─── XSS HELPER ──────────────────────────────────────────────────────────────
-// FIX: All user-supplied strings must be escaped before insertion into the DOM.
-// Using innerHTML with raw user data was a stored XSS vulnerability.
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 // ─── FIRESTORE HELPERS ────────────────────────────────────────────────────────
 
 function myDocRef() {
-  // FIX: Always use me.id when available; myId is only the pre-join fallback.
-  return doc(db, USERS_COL, me?.id || myId);
+  return doc(db, USERS_COL, myId);
 }
 
-async function saveMySession(extra = {}) {
-  if (!me?.id) return;
-
-  await setDoc(doc(db, "users", me.id), {
-    id: me.id,
-    name: me.name,
-    colorIdx: me.colorIdx,
-    // FIX: Store the resolved hex color alongside the index so all rendering
-    // paths use the same value instead of computing hsl(idx*60) separately.
-    color: COLORS[me.colorIdx] ?? COLORS[0],
-    room: me.room || null,
-    avatar: me.avatar || null,
-    x: me.x || null,
-    heartbeat: Date.now(),
-    lastSeen: Date.now(),
-    joinedAt: me.joinedAt || Date.now(),
-    ...extra
-  }, { merge: true });
+async function saveMySession() {
+  if (!me) return;
+  try {
+    await setDoc(myDocRef(), {
+      name: me.name,
+      colorIdx: me.colorIdx,
+      room: me.room ?? null,
+      joinedAt: me.joinedAt,
+      heartbeat: Date.now(),
+    }, { merge: true });
+  } catch (e) {
+    console.error('Firestore write error:', e);
+  }
 }
 
 async function getUsersByName(name) {
@@ -257,12 +233,7 @@ async function getUsersByName(name) {
 // ─── ONLINE HELPERS ───────────────────────────────────────────────────────────
 
 function isOnline(u) {
-  if (!u?.heartbeat) return false;
-  return (Date.now() - u.heartbeat) < ONLINE_TIMEOUT_MS;
-}
-
-function getOnlineUsers(list = users) {
-  return Object.values(list).filter(isOnline);
+  return u.heartbeat && (Date.now() - u.heartbeat < ONLINE_TIMEOUT_MS);
 }
 
 function countOnlineUsers(usersArr) {
@@ -279,24 +250,15 @@ async function sendMessage() {
   const id = 'm_' + Date.now() + '_' + Math.random();
   await setDoc(doc(db, CHAT_COL, id), {
     text,
-    // FIX: type is always "user" here — clients cannot write type:"system"
-    // (enforce this in Firestore Security Rules as well).
     type: "user",
     name: me.name,
     colorIdx: me.colorIdx,
-    // FIX: Store resolved hex color so chat rendering is consistent with the
-    // color picker, instead of recalculating hsl(colorIdx * 60) which gave
-    // a different color than the COLORS array.
-    color: COLORS[me.colorIdx] ?? COLORS[0],
     createdAt: Date.now(),
   });
 
   input.value = '';
 }
 
-// FIX: addSystemMessage is now internal-only. It is never called with
-// user-controlled data, and Firestore Security Rules should deny any client
-// write where type == "system" to prevent spoofing.
 async function addSystemMessage(text, uniqueKey = null) {
   const id = uniqueKey || ('m_' + Date.now() + '_' + Math.random());
   await setDoc(doc(db, CHAT_COL, id), {
@@ -307,14 +269,7 @@ async function addSystemMessage(text, uniqueKey = null) {
 }
 
 function subscribeChat() {
-  // FIX: Tear down any existing listener before creating a new one to prevent
-  // duplicate onSnapshot handlers stacking up on re-join.
-  if (unsubChat) {
-    unsubChat();
-    unsubChat = null;
-  }
-
-  unsubChat = onSnapshot(collection(db, CHAT_COL), snapshot => {
+  return onSnapshot(collection(db, CHAT_COL), snapshot => {
     const chat = document.getElementById('chatMessages');
     chat.innerHTML = '';
 
@@ -328,37 +283,13 @@ function subscribeChat() {
 
       if (m.type === "system") {
         div.className = 'chat-msg system-msg';
-
-        // FIX: Use textContent / safe DOM construction instead of innerHTML to
-        // prevent XSS. System messages come from our own code so the text is
-        // trusted, but we still avoid innerHTML as a defence-in-depth measure.
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'msg-time';
-        timeSpan.textContent = `[${time}]`;
-
-        div.appendChild(timeSpan);
-        div.appendChild(document.createTextNode(' ' + m.text));
-
+        div.innerHTML = `<span class="msg-time">[${time}]</span> ${m.text}`;
       } else {
         div.className = 'chat-msg';
-
-        // FIX: Build chat bubbles via DOM API — never innerHTML with user data.
-        // This eliminates the stored XSS that allowed injecting arbitrary HTML
-        // via crafted name or message content.
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'msg-time';
-        timeSpan.textContent = `[${time}]`;
-
-        const nameSpan = document.createElement('span');
-        // FIX: Use the stored hex color (consistent with the picker) instead of
-        // hsl(colorIdx * 60) which produced a different color.
-        nameSpan.style.color = m.color ?? (COLORS[m.colorIdx] ?? COLORS[0]);
-        nameSpan.textContent = m.name;
-
-        div.appendChild(timeSpan);
-        div.appendChild(document.createTextNode(' '));
-        div.appendChild(nameSpan);
-        div.appendChild(document.createTextNode(': ' + m.text));
+        div.innerHTML = `
+          <span class="msg-time">[${time}]</span>
+          <span style="color:hsl(${m.colorIdx * 60},70%,70%)">${m.name}</span>: ${m.text}
+        `;
       }
 
       chat.appendChild(div);
@@ -371,13 +302,7 @@ function subscribeChat() {
 // ─── USERS SUBSCRIBE ──────────────────────────────────────────────────────────
 
 function subscribeUsers() {
-  // FIX: Tear down existing listener before re-subscribing.
-  if (unsubUsers) {
-    unsubUsers();
-    unsubUsers = null;
-  }
-
-  unsubUsers = onSnapshot(collection(db, USERS_COL), snapshot => {
+  return onSnapshot(collection(db, USERS_COL), snapshot => {
     const fresh = {};
     const currentOnline = new Set();
     const now = Date.now();
@@ -385,59 +310,34 @@ function subscribeUsers() {
     snapshot.forEach(docSnap => {
       const u = { id: docSnap.id, ...docSnap.data() };
       fresh[u.id] = u;
-
-      if (isOnline(u)) {
-        currentOnline.add(u.id);
-      }
+      if (isOnline(u)) currentOnline.add(u.id);
     });
 
     if (!isFirstLoad) {
-
-      // JOIN detection
-      // FIX: The old condition `now - u.lastSeen > ONLINE_TIMEOUT_MS` was
-      // inverted — a brand-new user has lastSeen ≈ now, so the gap is ~0 ms
-      // and the toast never fired. We now check that joinedAt is recent
-      // (within JOIN_WINDOW_MS) to detect genuine fresh joins, which also
-      // handles the STABLE_DELAY / JOIN_WINDOW_MS constants that were
-      // previously declared but never used.
+      // Handle joins
       currentOnline.forEach(id => {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
-
-          if (u && u.id !== me?.id) {
-            const joinTime = u.joinedAt || now;
-            const isRecentJoin = (now - joinTime) < JOIN_WINDOW_MS;
-
-            if (isRecentJoin) {
-              showToast('toast.joined', {
-                name: u.name,
-                time: formatTime(joinTime)
-              });
-
-              addSystemMessage(
-                `🟢 ${u.name} joined`,
-                `join_${id}_${joinTime}`
-              );
-            }
+          if (u && u.name !== me?.name && now - u.joinedAt < JOIN_WINDOW_MS) {
+            const timeStr = formatTime(u.joinedAt);
+            showToast('toast.joined', { name: u.name, time: timeStr });
+            addSystemMessage(
+              t('toast.joined').replace('{name}', u.name).replace('{time}', timeStr),
+              `join_${id}`
+            );
           }
         }
       });
 
-      // LEAVE detection
-      // FIX: Read from `fresh` (the snapshot just received) rather than the
-      // stale module-level `users` map. The old code referenced `users[id]`
-      // but `users = fresh` was only assigned after this block, meaning the
-      // departed user could already be missing from the old map.
+      // Handle leaves
       prevOnlineUsers.forEach(id => {
         if (!currentOnline.has(id)) {
-          const u = fresh[id];
-
-          if (u && u.id !== me?.id) {
+          const u = users[id];
+          if (u && u.name !== me?.name) {
             showToast('toast.left', { name: u.name });
-
             addSystemMessage(
-              `🔴 ${u.name} left`,
-              `left_${id}_${Date.now()}`
+              t('toast.left').replace('{name}', u.name),
+              `left_${id}`
             );
           }
         }
@@ -459,30 +359,22 @@ function renderAll() {
   const list = document.getElementById('userList');
   list.innerHTML = '';
 
-  const onlineUsers = getOnlineUsers();
-
-  onlineUsers.forEach(u => {
+  Object.values(users).forEach(u => {
     const div = document.createElement('div');
-    div.textContent = `🟢 ${u.name}`;
+    const online = isOnline(u);
+
+    div.textContent = online ? `🟢 ${u.name}` : `⚫ ${u.name}`;
+    div.style.opacity = online ? '1' : '0.5';
+
     list.appendChild(div);
   });
 
-  const offlineUsers = Object.values(users).filter(u => !isOnline(u));
-
-  offlineUsers.forEach(u => {
-    const div = document.createElement('div');
-    div.textContent = `⚫ ${u.name}`;
-    div.style.opacity = '0.5';
-    list.appendChild(div);
-  });
-
-  document.getElementById('onlineCount').textContent = onlineUsers.length;
+  const onlineCount = Object.values(users).filter(isOnline).length;
+  document.getElementById('onlineCount').textContent = onlineCount;
 }
 
 // ─── HEADER HELPERS ───────────────────────────────────────────────────────────
 
-// FIX: moveLangToHeader was defined but never called anywhere. Added the call
-// inside initApp() so the button is actually moved to the header on startup.
 function moveLangToHeader() {
   const langBtn = document.getElementById("langBtn");
   const headerRight = document.getElementById("headerRight");
@@ -493,30 +385,17 @@ function moveLangToHeader() {
 
 // ─── JOIN ─────────────────────────────────────────────────────────────────────
 
-// FIX: A simple mutex flag prevents two concurrent doJoin() calls (e.g. rapid
-// double-tap) from both passing the capacity/name checks simultaneously.
-let isJoining = false;
-
 async function doJoin() {
-  if (isJoining) return;
-  isJoining = true;
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) {
+    showToast('toast.enterName');
+    return;
+  }
 
   try {
-    const name = document.getElementById('nameInput').value.trim();
-    if (!name) {
-      showToast('toast.enterName');
-      return;
-    }
-
-    // FIX: Fetch both the name-conflict list and the global snapshot in a
-    // single round-trip set and check them together. While this does not give
-    // full atomic guarantees (only Firestore transactions on the server side
-    // can do that), it minimises the race window significantly on the client.
-    const [sameNameUsers, allUsers] = await Promise.all([
-      getUsersByName(name),
-      getDocsSnapshot(),
-    ]);
-
+    const sameNameUsers = await getUsersByName(name);
+    const allUsersSnapshot = await getDocs(collection(db, USERS_COL));
+    const allUsers = allUsersSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
     const onlineCount = countOnlineUsers(allUsers);
 
     if (onlineCount >= MAX_ONLINE_USERS) {
@@ -524,26 +403,22 @@ async function doJoin() {
       return;
     }
 
-    const onlineSameName = sameNameUsers.find(isOnline);
-    if (onlineSameName) {
+    const onlineUser = sameNameUsers.find(u => isOnline(u));
+    if (onlineUser) {
       showToast('toast.nameTaken');
       return;
     }
 
-    const reusedUser = sameNameUsers
-      .sort((a, b) => (b.joinedAt || 0) - (a.joinedAt || 0))[0];
+    const reusedUser = sameNameUsers[0];
 
-    // FIX: In both branches, assign me.id first and keep myId in sync so that
-    // myDocRef() never diverges from me.id, eliminating the ghost-document bug.
     if (reusedUser) {
       myId = reusedUser.id;
       me = {
         id: reusedUser.id,
-        name,
-        colorIdx: selectedColorIdx,
-        room: null,
-        joinedAt: Date.now(),
-        lastSeen: Date.now(),
+        name: reusedUser.name,
+        colorIdx: reusedUser.colorIdx,
+        room: reusedUser.room ?? null,
+        joinedAt: reusedUser.joinedAt,
       };
       showToast('toast.welcomeBack', { name });
     } else {
@@ -553,54 +428,49 @@ async function doJoin() {
         colorIdx: selectedColorIdx,
         room: null,
         joinedAt: Date.now(),
-        lastSeen: Date.now(),
       };
       showToast('toast.welcome', { name });
     }
 
     await saveMySession();
 
+    if (!reusedUser) {
+      const timeStr = formatTime(me.joinedAt);
+      await addSystemMessage(`🟢 ${me.name} joined at ${timeStr}`, `join_${me.id}`);
+    }
+
+    // Flip UI
     document.getElementById('joinModal').style.display = 'none';
     document.getElementById('mainApp').style.display = '';
+    moveLangToHeader();
 
-    // FIX: subscribeUsers / subscribeChat now guard against duplicate listeners
-    // internally, so calling them here is always safe.
+    // Butler
+    initButler({
+      getMe: () => me,
+      addSystemMessage,
+    });
+
+    registerCharHandlers({
+      getMe: () => me,
+      saveRoom: async (room) => { me.room = room; await saveMySession(); },
+    });
+    initRoomInteractions();
+
+    // Background music (autoplay workaround)
+    const audio = document.getElementById('bgMusic');
+    audio.muted = true;
+    audio.play().then(() => { audio.muted = false; }).catch(() => { });
+
     subscribeUsers();
     subscribeChat();
-    startHeartbeat();
 
-  } finally {
-    // Always release the lock, even if an error occurred.
-    isJoining = false;
+    setInterval(saveMySession, HEARTBEAT_INTERVAL);
+    setInterval(renderAll, 3000);
+
+  } catch (e) {
+    console.error(e);
+    showToast('toast.error');
   }
-}
-
-// ─── HEARTBEAT ────────────────────────────────────────────────────────────────
-
-function startHeartbeat() {
-  // FIX: Clear any existing heartbeat interval before starting a new one to
-  // prevent duplicate intervals doubling Firestore write traffic on re-join.
-  if (heartbeatTimer) {
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = null;
-  }
-
-  heartbeatTimer = setInterval(() => {
-    if (!me?.id) return;
-
-    setDoc(doc(db, USERS_COL, me.id), {
-      heartbeat: Date.now(),
-      lastSeen: Date.now()
-    }, { merge: true });
-
-  }, HEARTBEAT_INTERVAL);
-}
-
-// ─── HELPER ───────────────────────────────────────────────────────────────────
-
-async function getDocsSnapshot() {
-  const snap = await getDocs(collection(db, USERS_COL));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 // ─── VIBES (MUSIC) ────────────────────────────────────────────────────────────
@@ -620,6 +490,7 @@ function setupVibes() {
 
   audio.loop = true;
 
+  // Volume — load saved or default
   const DEFAULT_VOLUME = 0.5;
   let savedVolume = parseFloat(localStorage.getItem('volume') ?? DEFAULT_VOLUME);
   if (!localStorage.getItem('volume')) localStorage.setItem('volume', savedVolume);
@@ -646,6 +517,7 @@ function setupVibes() {
   volumeSlider.addEventListener('change', e => setVolume(e.target.value));
   volumeSlider.addEventListener('touchmove', e => setVolume(e.target.value), { passive: true });
 
+  // Track switching with fade
   let fadeInterval = null;
 
   function isSameTrack(audio, newSrc) {
@@ -726,9 +598,6 @@ function initApp() {
   document.getElementById('langBtn').addEventListener('click', toggleLang);
   applyLang();
 
-  // FIX: moveLangToHeader was never called — wired up here.
-  moveLangToHeader();
-
   document.getElementById('joinBtn').addEventListener('click', doJoin);
   document.getElementById('sendBtn').addEventListener('click', sendMessage);
   document.getElementById('chatInput').addEventListener('keypress', e => {
@@ -743,29 +612,30 @@ function initApp() {
 // ─── CLEANUP ──────────────────────────────────────────────────────────────────
 
 async function leaveImmediately() {
-  if (!me?.id) return;
-
-  // Stop heartbeat so no further writes race with the leave write.
-  if (heartbeatTimer) {
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = null;
-  }
+  if (!me) return;
 
   try {
-    await setDoc(doc(db, USERS_COL, me.id), {
+    await setDoc(myDocRef(), {
+      room: null,
       heartbeat: 0
     }, { merge: true });
   } catch (e) {
-    console.log("leave failed");
+    console.log("presence cleanup failed");
   }
 }
 
-// FIX: The original code called leaveImmediately() on every visibilitychange
-// → hidden event, which set heartbeat: 0 whenever the user switched tabs.
-// After ONLINE_TIMEOUT_MS their avatar disappeared even though they were still
-// in the session. leaveImmediately is now only wired to true unload events.
+// desktop close / refresh
 window.addEventListener("beforeunload", leaveImmediately);
+
+// mobile + safari reliable
 window.addEventListener("pagehide", leaveImmediately);
+
+// tab background / app switch
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    leaveImmediately();
+  }
+});
 
 // ─── BOOTSTRAP ────────────────────────────────────────────────────────────────
 
