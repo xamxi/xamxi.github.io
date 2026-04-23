@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
-import { initButler } from './butler/index.js';
+// import { initButler } from './butler/index.js';
 import { initRoomInteractions } from './rooms.js';
 import { registerCharHandlers, syncAllRooms } from './characters.js';
 
@@ -444,11 +444,11 @@ async function doJoin() {
     document.getElementById('mainApp').style.display = '';
     moveLangToHeader();
 
-    // Butler
-    initButler({
-      getMe: () => me,
-      addSystemMessage,
-    });
+    // // Butler
+    // initButler({
+    //   getMe: () => me,
+    //   addSystemMessage,
+    // });
 
     registerCharHandlers({
       getMe: () => me,
