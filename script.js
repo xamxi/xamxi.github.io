@@ -444,11 +444,11 @@ async function doJoin() {
     document.getElementById('mainApp').style.display = '';
     moveLangToHeader();
 
-    // Butler
-    initButler({
-      getMe: () => me,
-      addSystemMessage,
-    });
+    // // Butler
+    // initButler({
+    //   getMe: () => me,
+    //   addSystemMessage,
+    // });
 
     registerCharHandlers({
       getMe: () => me,
