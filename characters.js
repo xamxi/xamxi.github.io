@@ -236,7 +236,25 @@ class PixelCharacter {
   _buildPNG() {
     const img = document.createElement('img');
 
-    const fallback = new URL('./assets/avatars/cat.png', import.meta.url).href;
+    const fallback = 'cat.png';
+
+    let file = this.avatarFile || fallback;
+
+    // If already full path or URL, use directly
+    if (
+      file.startsWith('http://') ||
+      file.startsWith('https://') ||
+      file.startsWith('./') ||
+      file.startsWith('/')
+    ) {
+      img.src = file;
+    } else {
+      img.src = `./assets/avatars/${file}`;
+    }
+
+    img.onerror = () => {
+      img.src = `./assets/avatars/${fallback}`;
+    };
 
     img.style.width = '48px';
     img.style.height = '48px';
@@ -244,47 +262,6 @@ class PixelCharacter {
     img.style.imageRendering = 'pixelated';
     img.draggable = false;
     img.style.pointerEvents = 'none';
-    img.style.opacity = '0'; // hide until loaded
-
-    const setAvatar = (file) => {
-      let src;
-
-      if (
-        file?.startsWith('http://') ||
-        file?.startsWith('https://') ||
-        file?.startsWith('./') ||
-        file?.startsWith('/') ||
-        file?.startsWith('data:')
-      ) {
-        src = file;
-      } else {
-        src = new URL(`./assets/avatars/${file}`, import.meta.url).href;
-      }
-
-      img.onload = () => {
-        img.style.opacity = '1';
-      };
-
-      img.onerror = () => {
-        img.onerror = null;
-        img.src = fallback;
-        img.style.opacity = '1';
-      };
-
-      img.src = src;
-    };
-
-    if (this.avatarFile) {
-      setAvatar(this.avatarFile);
-    } else {
-      // wait briefly for firestore sync before fallback
-      setTimeout(() => {
-        if (!img.src) {
-          img.src = fallback;
-          img.style.opacity = '1';
-        }
-      }, 250);
-    }
 
     this.avatar = img;
     return img;
@@ -666,7 +643,31 @@ function handleRoomJoin(room) {
  *   initRoomInteractions(); // rooms.js runs normally after
  */
 export function registerCharHandlers(handlers) {
-  initCharButtons(); // wire SIT HERE buttons — no conflict with rooms.js
+  initCharButtons();
+
+  // ── STALE PRESENCE CLEANUP ─────────────────────────────────────
+  // 1. Graceful close / refresh
+  window.addEventListener('beforeunload', () => {
+    const me = handlers.getMe();
+    if (me?.room) handlers.saveRoom(null);
+  });
+
+  // 2. Mobile: screen lock, app background (with grace period)
+  let visibilityTimer = null;
+  document.addEventListener('visibilitychange', () => {
+    const me = handlers.getMe();
+    if (!me) return;
+
+    if (document.visibilityState === 'hidden') {
+      visibilityTimer = setTimeout(() => {
+        if (me.room) handlers.saveRoom(null);
+      }, 30_000); // 30s grace — cancels if user comes back
+    } else {
+      clearTimeout(visibilityTimer);
+    }
+  });
+
+  // ── EXISTING LOGIC (unchanged) ─────────────────────────────────
   window.__charHandlers = {
     onRoomJoin: async (room) => {
       const me = handlers.getMe();
@@ -674,7 +675,6 @@ export function registerCharHandlers(handlers) {
 
       const prevRoom = me.room;
 
-      // Already in this room → leave it
       if (prevRoom === room) {
         await handlers.saveRoom(null);
         removeCharacter(me.id);
@@ -682,27 +682,18 @@ export function registerCharHandlers(handlers) {
         return;
       }
 
-      // Leave old room
       if (prevRoom) {
         removeCharacter(me.id);
         updateRoomOccupants(prevRoom, null);
       }
 
-      // Join new room
       me.room = room;
       me.avatar = randomAvatar();
       me.x = randomSpawnX(room);
 
       await handlers.saveRoom(room);
 
-      spawnCharacter(
-        me.id,
-        me.name,
-        me.colorIdx,
-        room,
-        me.avatar,
-        me.x
-      );
+      spawnCharacter(me.id, me.name, me.colorIdx, room, me.avatar, me.x);
       updateRoomOccupants(room, me);
     }
   };
@@ -731,8 +722,8 @@ export function syncAllRooms(users, myId) {
           u.name,
           u.colorIdx,
           room,
-          u.avatar || 'cat.png',
-          u.x ?? randomSpawnX(room)
+          u.avatar,
+          u.x
         );
         return;
       }
@@ -744,8 +735,8 @@ export function syncAllRooms(users, myId) {
           u.name,
           u.colorIdx,
           room,
-          u.avatar || 'cat.png',
-          u.x ?? randomSpawnX(room)
+          u.avatar,
+          u.x
         );
       }
     });
@@ -766,7 +757,7 @@ export function syncAllRooms(users, myId) {
         u.name,
         u.colorIdx,
         u.room,
-        u.avatar || 'cat.png',
+        u.avatar,
         u.x
       );
     }

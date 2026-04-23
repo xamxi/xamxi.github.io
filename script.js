@@ -9,7 +9,6 @@ const FIREBASE_CONFIG = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
@@ -318,7 +317,7 @@ function subscribeUsers() {
       currentOnline.forEach(id => {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
-          if (u && u.name !== me?.name && now - u.joinedAt < JOIN_WINDOW_MS) {
+          if (u && u.name !== me?.name) {
             const timeStr = formatTime(u.joinedAt);
             showToast('toast.joined', { name: u.name, time: timeStr });
             addSystemMessage(
@@ -630,12 +629,6 @@ window.addEventListener("beforeunload", leaveImmediately);
 // mobile + safari reliable
 window.addEventListener("pagehide", leaveImmediately);
 
-// tab background / app switch
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    leaveImmediately();
-  }
-});
 
 // ─── BOOTSTRAP ────────────────────────────────────────────────────────────────
 
