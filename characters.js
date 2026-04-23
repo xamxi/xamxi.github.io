@@ -734,7 +734,7 @@ export function syncAllRooms(users, myId) {
           u.avatar || 'cat.png',
           u.x ?? randomSpawnX(room)
         );
-        continue;
+        return;
       }
 
       // already spawned but wrong room
