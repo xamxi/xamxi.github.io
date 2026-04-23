@@ -703,64 +703,39 @@ export function registerCharHandlers(handlers) {
 // Syncs the text list under each room card.
 
 export function syncAllRooms(users, myId) {
-  ['study', 'playah'].forEach(room => {
-    const el = document.getElementById(`occ-${room}`);
-    if (!el) return;
-    const inRoom = Object.values(users).filter(u => u.room === room);
-    el.innerHTML = inRoom.map(u =>
-      `<span style="color:hsl(${u.colorIdx * 60},70%,65%);font-size:11px;margin-right:6px">● ${u.name}</span>`
-    ).join('');
-
-    // Spawn/remove characters based on Firestore snapshot
-    inRoom.forEach(u => {
-      const existing = activeChars.get(u.id);
-
-      // not spawned yet
-      if (!existing) {
-        spawnCharacter(
-          u.id,
-          u.name,
-          u.colorIdx,
-          room,
-          u.avatar,
-          u.x
-        );
-        return;
-      }
-
-      // already spawned but wrong room
-      if (existing.room !== room) {
-        moveCharacter(
-          u.id,
-          u.name,
-          u.colorIdx,
-          room,
-          u.avatar,
-          u.x
-        );
-      }
-    });
-  });
-
-  // Remove characters that are no longer in any room or are offline
+  // ── 1. CLEANUP FIRST — remove chars no longer in any room ──────
   activeChars.forEach((char, uid) => {
-    if (uid === myId) return; // managed separately
+    if (uid === myId) return;
     const u = users[uid];
     if (!u || !u.room) {
       removeCharacter(uid);
       return;
     }
-
     if (char.room !== u.room) {
-      moveCharacter(
-        u.id,
-        u.name,
-        u.colorIdx,
-        u.room,
-        u.avatar,
-        u.x
-      );
+      moveCharacter(u.id, u.name, u.colorIdx, u.room, u.avatar, u.x);
     }
+  });
+
+  // ── 2. SPAWN / SYNC users currently in a room ──────────────────
+  ['study', 'playah'].forEach(room => {
+    const el = document.getElementById(`occ-${room}`);
+    if (!el) return;
+
+    const inRoom = Object.values(users).filter(u => u.room === room);
+
+    el.innerHTML = inRoom.map(u =>
+      `<span style="color:hsl(${u.colorIdx * 60},70%,65%);font-size:11px;margin-right:6px">● ${u.name}</span>`
+    ).join('');
+
+    inRoom.forEach(u => {
+      if (u.id === myId) return; // my own char is managed by registerCharHandlers
+      const existing = activeChars.get(u.id);
+      if (!existing) {
+        spawnCharacter(u.id, u.name, u.colorIdx, room, u.avatar, u.x);
+      } else if (existing.room !== room) {
+        moveCharacter(u.id, u.name, u.colorIdx, room, u.avatar, u.x);
+      }
+    });
   });
 }
 
