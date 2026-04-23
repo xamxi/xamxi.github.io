@@ -63,7 +63,6 @@ let me = null;
 let users = {};
 let prevOnlineUsers = new Set();
 let isFirstLoad = true;
-let lastChangeTime = {};
 let selectedColorIdx = 0;
 
 // ─── LANGUAGE ─────────────────────────────────────────────────────────────────
@@ -94,8 +93,7 @@ function applyLang() {
 
   // Header
   document.querySelector('.header-title').textContent = `✨ ${t('title')}`;
-  document.querySelector('.online-badge').innerHTML =
-    `<span id="onlineCount">${document.getElementById('onlineCount').textContent}</span> ${t('online')}`;
+  document.querySelector('.online-badge-text').textContent = t('online');
 
   // Rooms
   document.querySelector('#card-study .card-title').textContent = t('studyRoom');
@@ -205,10 +203,12 @@ function initClock() {
 // ─── FIRESTORE HELPERS ────────────────────────────────────────────────────────
 
 function myDocRef() {
-  return doc(db, USERS_COL, myId);
+  return doc(db, USERS_COL, me?.id || myId);
 }
 
 async function saveMySession(extra = {}) {
+  if (!me?.id) return;
+
   await setDoc(doc(db, "users", me.id), {
     id: me.id,
     name: me.name,
@@ -216,6 +216,11 @@ async function saveMySession(extra = {}) {
     room: me.room || null,
     avatar: me.avatar || null,
     x: me.x || null,
+
+    heartbeat: Date.now(),
+    lastSeen: Date.now(),
+    joinedAt: me.joinedAt || Date.now(),
+
     ...extra
   }, { merge: true });
 }
@@ -230,7 +235,12 @@ async function getUsersByName(name) {
 // ─── ONLINE HELPERS ───────────────────────────────────────────────────────────
 
 function isOnline(u) {
-  return u.heartbeat && (Date.now() - u.heartbeat < ONLINE_TIMEOUT_MS);
+  if (!u?.heartbeat) return false;
+  return (Date.now() - u.heartbeat) < ONLINE_TIMEOUT_MS;
+}
+
+function getOnlineUsers(list = users) {
+  return Object.values(list).filter(isOnline);
 }
 
 function countOnlineUsers(usersArr) {
@@ -307,34 +317,48 @@ function subscribeUsers() {
     snapshot.forEach(docSnap => {
       const u = { id: docSnap.id, ...docSnap.data() };
       fresh[u.id] = u;
-      if (isOnline(u)) currentOnline.add(u.id);
+
+      if (isOnline(u)) {
+        currentOnline.add(u.id);
+      }
     });
 
     if (!isFirstLoad) {
-      // Handle joins
+
+      // JOIN detection
       currentOnline.forEach(id => {
         if (!prevOnlineUsers.has(id)) {
           const u = fresh[id];
-          if (u && u.name !== me?.name && now - u.joinedAt < JOIN_WINDOW_MS) {
-            const timeStr = formatTime(u.joinedAt);
-            showToast('toast.joined', { name: u.name, time: timeStr });
-            addSystemMessage(
-              t('toast.joined').replace('{name}', u.name).replace('{time}', timeStr),
-              `join_${id}`
-            );
+
+          if (u && u.id !== me?.id) {
+            const joinTime = u.joinedAt || now;
+
+            if (u?.lastSeen && now - u.lastSeen > ONLINE_TIMEOUT_MS) {
+              showToast('toast.joined', {
+                name: u.name,
+                time: formatTime(joinTime)
+              });
+
+              addSystemMessage(
+                `🟢 ${u.name} joined`,
+                `join_${id}_${joinTime}`
+              );
+            }
           }
         }
       });
 
-      // Handle leaves
+      // LEAVE detection
       prevOnlineUsers.forEach(id => {
         if (!currentOnline.has(id)) {
           const u = users[id];
-          if (u && u.name !== me?.name) {
+
+          if (u && u.id !== me?.id) {
             showToast('toast.left', { name: u.name });
+
             addSystemMessage(
-              t('toast.left').replace('{name}', u.name),
-              `left_${id}`
+              `🔴 ${u.name} left`,
+              `left_${id}_${Date.now()}`
             );
           }
         }
@@ -356,18 +380,24 @@ function renderAll() {
   const list = document.getElementById('userList');
   list.innerHTML = '';
 
-  Object.values(users).forEach(u => {
+  const onlineUsers = getOnlineUsers();
+
+  onlineUsers.forEach(u => {
     const div = document.createElement('div');
-    const online = isOnline(u);
-
-    div.textContent = online ? `🟢 ${u.name}` : `⚫ ${u.name}`;
-    div.style.opacity = online ? '1' : '0.5';
-
+    div.textContent = `🟢 ${u.name}`;
     list.appendChild(div);
   });
 
-  const onlineCount = Object.values(users).filter(isOnline).length;
-  document.getElementById('onlineCount').textContent = onlineCount;
+  const offlineUsers = Object.values(users).filter(u => !isOnline(u));
+
+  offlineUsers.forEach(u => {
+    const div = document.createElement('div');
+    div.textContent = `⚫ ${u.name}`;
+    div.style.opacity = '0.5';
+    list.appendChild(div);
+  });
+
+  document.getElementById('onlineCount').textContent = onlineUsers.length;
 }
 
 // ─── HEADER HELPERS ───────────────────────────────────────────────────────────
@@ -384,98 +414,78 @@ function moveLangToHeader() {
 
 async function doJoin() {
   const name = document.getElementById('nameInput').value.trim();
-  if (!name) {
-    showToast('toast.enterName');
-    return;
+  if (!name) return showToast('toast.enterName');
+
+  const sameNameUsers = await getUsersByName(name);
+  const onlineUsers = getOnlineUsers(await getDocsSnapshot());
+
+  if (onlineUsers.length >= MAX_ONLINE_USERS) {
+    return showToast('toast.roomFull');
   }
 
-  try {
-    const sameNameUsers = await getUsersByName(name);
-    const allUsersSnapshot = await getDocs(collection(db, USERS_COL));
-    const allUsers = allUsersSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-    const onlineCount = countOnlineUsers(allUsers);
-
-    if (onlineCount >= MAX_ONLINE_USERS) {
-      showToast('toast.roomFull');
-      return;
-    }
-
-    const onlineUser = sameNameUsers.find(u => isOnline(u));
-    if (onlineUser) {
-      showToast('toast.nameTaken');
-      return;
-    }
-
-    const reusedUser = sameNameUsers[0];
-
-    if (reusedUser) {
-      myId = reusedUser.id;
-      me = {
-        id: reusedUser.id,
-        name: reusedUser.name,
-        colorIdx: reusedUser.colorIdx,
-        room: reusedUser.room ?? null,
-        joinedAt: reusedUser.joinedAt,
-      };
-      showToast('toast.welcomeBack', { name });
-    } else {
-      me = {
-        id: myId,
-        name,
-        colorIdx: selectedColorIdx,
-        room: null,
-        joinedAt: Date.now(),
-      };
-      showToast('toast.welcome', { name });
-    }
-
-    await saveMySession();
-
-    if (!reusedUser) {
-      const timeStr = formatTime(me.joinedAt);
-      await addSystemMessage(`🟢 ${me.name} joined at ${timeStr}`, `join_${me.id}`);
-    }
-
-    // Flip UI
-    document.getElementById('joinModal').style.display = 'none';
-    document.getElementById('mainApp').style.display = '';
-    moveLangToHeader();
-
-    // // Butler
-    // initButler({
-    //   getMe: () => me,
-    //   addSystemMessage,
-    // });
-
-    registerCharHandlers({
-      getMe: () => me,
-      saveRoom: async (room) => {
-        me.room = room;
-
-        await saveMySession({
-          room: me.room,
-          avatar: me.avatar,
-          x: me.x
-        });
-      }
-    });
-    initRoomInteractions();
-
-    // Background music (autoplay workaround)
-    const audio = document.getElementById('bgMusic');
-    audio.muted = true;
-    audio.play().then(() => { audio.muted = false; }).catch(() => { });
-
-    subscribeUsers();
-    subscribeChat();
-
-    setInterval(saveMySession, HEARTBEAT_INTERVAL);
-    setInterval(renderAll, 3000);
-
-  } catch (e) {
-    console.error(e);
-    showToast('toast.error');
+  const onlineSameName = sameNameUsers.find(isOnline);
+  if (onlineSameName) {
+    return showToast('toast.nameTaken');
   }
+
+  const reusedUser = sameNameUsers
+    .sort((a, b) => (b.joinedAt || 0) - (a.joinedAt || 0))[0];
+
+  const userId = reusedUser?.id || ('u_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7));
+
+
+  if (reusedUser) {
+    me = {
+      id: userId,
+      name,
+      colorIdx: selectedColorIdx,
+      room: null,
+      joinedAt: Date.now(),
+      lastSeen: Date.now()
+    };
+
+    showToast('toast.welcomeBack', { name });
+
+  } else {
+    me = {
+      id: myId,
+      name,
+      colorIdx: selectedColorIdx,
+      room: null,
+      joinedAt: Date.now(),
+      lastSeen: Date.now()
+    };
+
+    showToast('toast.welcome', { name });
+  }
+
+  await saveMySession();
+
+  document.getElementById('joinModal').style.display = 'none';
+  document.getElementById('mainApp').style.display = '';
+
+  subscribeUsers();
+  subscribeChat();
+  startHeartbeat();
+}
+
+// ─── HEARTBEAT ────────────────────────────────────────────────────────────────
+function startHeartbeat() {
+  setInterval(() => {
+    if (!me?.id) return;
+
+    setDoc(doc(db, USERS_COL, me.id), {
+      heartbeat: Date.now(),
+      lastSeen: Date.now()
+    }, { merge: true });
+
+  }, HEARTBEAT_INTERVAL);
+}
+
+// ─── HELPER ───────────────────────────────────────────────────────────────────
+async function getDocsSnapshot() {
+  const snap = await getDocs(collection(db, USERS_COL));
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 // ─── VIBES (MUSIC) ────────────────────────────────────────────────────────────
@@ -617,15 +627,14 @@ function initApp() {
 // ─── CLEANUP ──────────────────────────────────────────────────────────────────
 
 async function leaveImmediately() {
-  if (!me) return;
+  if (!me?.id) return;
 
   try {
-    await setDoc(myDocRef(), {
-      room: null,
+    await setDoc(doc(db, USERS_COL, me.id), {
       heartbeat: 0
     }, { merge: true });
   } catch (e) {
-    console.log("presence cleanup failed");
+    console.log("leave failed");
   }
 }
 
