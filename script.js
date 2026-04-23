@@ -208,19 +208,16 @@ function myDocRef() {
   return doc(db, USERS_COL, myId);
 }
 
-async function saveMySession() {
-  if (!me) return;
-  try {
-    await setDoc(myDocRef(), {
-      name: me.name,
-      colorIdx: me.colorIdx,
-      room: me.room ?? null,
-      joinedAt: me.joinedAt,
-      heartbeat: Date.now(),
-    }, { merge: true });
-  } catch (e) {
-    console.error('Firestore write error:', e);
-  }
+async function saveMySession(extra = {}) {
+  await setDoc(doc(db, "users", me.id), {
+    id: me.id,
+    name: me.name,
+    colorIdx: me.colorIdx,
+    room: me.room || null,
+    avatar: me.avatar || null,
+    x: me.x || null,
+    ...extra
+  }, { merge: true });
 }
 
 async function getUsersByName(name) {
@@ -452,7 +449,15 @@ async function doJoin() {
 
     registerCharHandlers({
       getMe: () => me,
-      saveRoom: async (room) => { me.room = room; await saveMySession(); },
+      saveRoom: async (room) => {
+        me.room = room;
+
+        await saveMySession({
+          room: me.room,
+          avatar: me.avatar,
+          x: me.x
+        });
+      }
     });
     initRoomInteractions();
 
