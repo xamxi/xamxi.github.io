@@ -249,11 +249,11 @@ class PixelCharacter {
     ) {
       img.src = file;
     } else {
-      img.src = `./assets/avatars/${file}`;
+      img.src = new URL(`./assets/avatars/${file}`, import.meta.url).href;
     }
 
     img.onerror = () => {
-      img.src = `./assets/avatars/${fallback}`;
+      img.src = new URL(`./assets/avatars/${fallback}`, import.meta.url).href;
     };
 
     img.style.width = '48px';
