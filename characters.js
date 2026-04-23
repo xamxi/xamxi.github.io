@@ -726,18 +726,15 @@ export function syncAllRooms(users, myId) {
 
       // not spawned yet
       if (!existing) {
-        // wait until avatar exists
-        if (!u.avatar) return;
-
         spawnCharacter(
           u.id,
           u.name,
           u.colorIdx,
           room,
-          u.avatar,
-          u.x
+          u.avatar || 'cat.png',
+          u.x ?? randomSpawnX(room)
         );
-        return;
+        continue;
       }
 
       // already spawned but wrong room
@@ -747,8 +744,8 @@ export function syncAllRooms(users, myId) {
           u.name,
           u.colorIdx,
           room,
-          u.avatar,
-          u.x
+          u.avatar || 'cat.png',
+          u.x ?? randomSpawnX(room)
         );
       }
     });
@@ -769,7 +766,7 @@ export function syncAllRooms(users, myId) {
         u.name,
         u.colorIdx,
         u.room,
-        u.avatar,
+        u.avatar || 'cat.png',
         u.x
       );
     }
