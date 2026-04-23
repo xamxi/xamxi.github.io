@@ -238,32 +238,53 @@ class PixelCharacter {
 
     const fallback = new URL('./assets/avatars/cat.png', import.meta.url).href;
 
-    let file = this.avatarFile || fallback;
-
-    // If already full path or URL, use directly
-    if (
-      file.startsWith('http://') ||
-      file.startsWith('https://') ||
-      file.startsWith('./') ||
-      file.startsWith('/') ||
-      file.startsWith('data:')
-    ) {
-      img.src = file;
-    } else {
-      img.src = new URL(`./assets/avatars/${file}`, import.meta.url).href;
-    }
-
-    img.onerror = () => {
-      img.onerror = null;
-      img.src = fallback;
-    };
-
     img.style.width = '48px';
     img.style.height = '48px';
     img.style.objectFit = 'contain';
     img.style.imageRendering = 'pixelated';
     img.draggable = false;
     img.style.pointerEvents = 'none';
+    img.style.opacity = '0'; // hide until loaded
+
+    const setAvatar = (file) => {
+      let src;
+
+      if (
+        file?.startsWith('http://') ||
+        file?.startsWith('https://') ||
+        file?.startsWith('./') ||
+        file?.startsWith('/') ||
+        file?.startsWith('data:')
+      ) {
+        src = file;
+      } else {
+        src = new URL(`./assets/avatars/${file}`, import.meta.url).href;
+      }
+
+      img.onload = () => {
+        img.style.opacity = '1';
+      };
+
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = fallback;
+        img.style.opacity = '1';
+      };
+
+      img.src = src;
+    };
+
+    if (this.avatarFile) {
+      setAvatar(this.avatarFile);
+    } else {
+      // wait briefly for firestore sync before fallback
+      setTimeout(() => {
+        if (!img.src) {
+          img.src = fallback;
+          img.style.opacity = '1';
+        }
+      }, 250);
+    }
 
     this.avatar = img;
     return img;
@@ -705,6 +726,9 @@ export function syncAllRooms(users, myId) {
 
       // not spawned yet
       if (!existing) {
+        // wait until avatar exists
+        if (!u.avatar) return;
+
         spawnCharacter(
           u.id,
           u.name,
