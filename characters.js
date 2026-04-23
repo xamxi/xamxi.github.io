@@ -236,7 +236,7 @@ class PixelCharacter {
   _buildPNG() {
     const img = document.createElement('img');
 
-    const fallback = 'cat.png';
+    const fallback = new URL('./assets/avatars/cat.png', import.meta.url).href;
 
     let file = this.avatarFile || fallback;
 
@@ -245,15 +245,17 @@ class PixelCharacter {
       file.startsWith('http://') ||
       file.startsWith('https://') ||
       file.startsWith('./') ||
-      file.startsWith('/')
+      file.startsWith('/') ||
+      file.startsWith('data:')
     ) {
       img.src = file;
     } else {
-      img.src = `/assets/avatars/${file}`;
+      img.src = new URL(`./assets/avatars/${file}`, import.meta.url).href;
     }
 
     img.onerror = () => {
-      img.src = `/assets/avatars/${fallback}`;
+      img.onerror = null;
+      img.src = fallback;
     };
 
     img.style.width = '48px';
