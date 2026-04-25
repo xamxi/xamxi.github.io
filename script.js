@@ -9,6 +9,7 @@ const FIREBASE_CONFIG = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
@@ -214,6 +215,8 @@ async function saveMySession() {
       name: me.name,
       colorIdx: me.colorIdx,
       room: me.room ?? null,
+      avatar: me.avatar ?? null,
+      x: me.x ?? null,
       joinedAt: me.joinedAt,
       heartbeat: Date.now(),
     }, { merge: true });
@@ -349,6 +352,13 @@ function subscribeUsers() {
 
     renderAll();
     syncAllRooms(users, myId);
+
+    // Remove characters for users who are now offline
+    Object.values(fresh).forEach(u => {
+      if (u.id !== myId && !isOnline(u)) {
+        removeCharacter(u.id);
+      }
+    });
   });
 }
 

@@ -700,14 +700,12 @@ export function registerCharHandlers(handlers) {
 }
 
 // ─── ROOM OCCUPANT LIST ───────────────────────────────────────────────────────
-// Syncs the text list under each room card.
-
 export function syncAllRooms(users, myId) {
-  // ── 1. CLEANUP FIRST — remove chars no longer in any room ──────
+  // 1. Cleanup chars no longer in any room or offline
   activeChars.forEach((char, uid) => {
     if (uid === myId) return;
     const u = users[uid];
-    if (!u || !u.room) {
+    if (!u || !u.room || !isUserOnline(u)) {   // ← add online check
       removeCharacter(uid);
       return;
     }
@@ -716,24 +714,25 @@ export function syncAllRooms(users, myId) {
     }
   });
 
-  // ── 2. SPAWN / SYNC users currently in a room ──────────────────
+  // 2. Spawn / sync users currently in a room
   ['study', 'playah'].forEach(room => {
     const el = document.getElementById(`occ-${room}`);
     if (!el) return;
 
-    const inRoom = Object.values(users).filter(u => u.room === room);
+    const inRoom = Object.values(users).filter(u => u.room === room && isUserOnline(u));  // ← filter offline
 
     el.innerHTML = inRoom.map(u =>
       `<span style="color:hsl(${u.colorIdx * 60},70%,65%);font-size:11px;margin-right:6px">● ${u.name}</span>`
     ).join('');
 
     inRoom.forEach(u => {
-      if (u.id === myId) return; // my own char is managed by registerCharHandlers
+      if (u.id === myId) return;
       const existing = activeChars.get(u.id);
       if (!existing) {
-        spawnCharacter(u.id, u.name, u.colorIdx, room, u.avatar, u.x);
+        // Use avatar and x from Firestore — same for all clients
+        spawnCharacter(u.id, u.name, u.colorIdx, room, u.avatar ?? 'cat.png', u.x ?? null);
       } else if (existing.room !== room) {
-        moveCharacter(u.id, u.name, u.colorIdx, room, u.avatar, u.x);
+        moveCharacter(u.id, u.name, u.colorIdx, room, u.avatar ?? 'cat.png', u.x ?? null);
       }
     });
   });
@@ -785,4 +784,8 @@ function randomAvatar() {
 function randomSpawnX(room) {
   const bounds = ROOM_BOUNDS[room] || ROOM_BOUNDS.study;
   return randBetween(bounds.xMin, bounds.xMax);
+}
+
+function isUserOnline(u) {
+  return u.heartbeat && (Date.now() - u.heartbeat < 20000);
 }
