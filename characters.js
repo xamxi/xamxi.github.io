@@ -96,6 +96,12 @@ class PixelCharacter {
 
     this.x = x ?? randBetween(bounds.xMin, bounds.xMax);
     this.facing = 'right';
+    this.moving = false;
+    this.moveProgress = 0;
+    this.moveDuration = 0;
+    this.startX = this.x;
+    this.targetX = this.x;
+    this.bobPhase = Math.random() * Math.PI * 2;
     this.action = 'idle';
 
     this._timers = [];
@@ -103,6 +109,8 @@ class PixelCharacter {
 
     this._buildDOM();
     this._scheduleNextAction();
+    this._scheduleNextMove();
+    this._startLoop();
   }
 
   // ─── DOM ───────────────────────────────────────────────────────────────────
@@ -173,6 +181,7 @@ class PixelCharacter {
     `;
     img.draggable = false;
 
+    this.nameEl = nameTag;
     el.appendChild(nameTag);
     el.appendChild(bubble);
     el.appendChild(img);
@@ -195,11 +204,10 @@ class PixelCharacter {
   _updateTransform() {
     this.el.style.left = `${this.x}px`;
     this.el.style.transform = this.facing === 'left' ? 'scaleX(-1)' : 'scaleX(1)';
-
-    // Keep name/bubble readable regardless of flip
-    const flipFix = this.facing === 'left' ? 'scaleX(-1)' : '';
-    this.el.querySelector('.char-name').style.transform = flipFix;
-    this.el.querySelector('.char-bubble').style.transform = flipFix;
+    // Always counter-flip name and bubble so they stay readable
+    const fix = 'scaleX(-1)';
+    this.el.querySelector('.char-name').style.transform = this.facing === 'left' ? fix : 'none';
+    this.el.querySelector('.char-bubble').style.transform = this.facing === 'left' ? fix : 'none';
   }
 
   // ─── BUBBLE ────────────────────────────────────────────────────────────────
@@ -241,6 +249,82 @@ class PixelCharacter {
       this._hideBubble();
       this._scheduleNextAction();
     }, duration));
+  }
+
+  // ─── MOVEMENT SCHEDULING ───────────────────────────────────────────────────
+  _scheduleNextMove() {
+    const delay = randBetween(800, 3200);
+    this._timers.push(setTimeout(() => {
+      if (this._isDestroyed) return;
+      this._pickDestination();
+      this._scheduleNextMove();
+    }, delay));
+  }
+
+  _pickDestination() {
+    const spread = randBetween(30, 120);
+    const dir = Math.random() < 0.5 ? -1 : 1;
+    let target = this.x + dir * spread;
+    target = Math.max(this.bounds.xMin, Math.min(this.bounds.xMax, target));
+    if (Math.abs(target - this.x) < 10) return;
+
+    this.startX = this.x;
+    this.targetX = target;
+    this.facing = target > this.x ? 'right' : 'left';
+    this.moving = true;
+    this.moveProgress = 0;
+    // speed: pixels-per-ms, so duration scales with distance
+    // this.moveDuration = Math.abs(target - this.x) / randBetween(0.04, 0.09);
+
+    const CHAR_CONFIG = {
+      // How often a character picks a new action (ms)
+      actionInterval: { min: 4000, max: 9000 },
+
+      // Different walking speed per room (pixels per ms)
+      moveSpeed: {
+        study: { min: 0.015, max: 0.03 },   // slower
+        playah: { min: 0.08, max: 0.16 },   // faster
+      }
+    };
+    const speedCfg =
+      CHAR_CONFIG.moveSpeed[this.room] ||
+      CHAR_CONFIG.moveSpeed.study;
+
+    const speed = randBetween(speedCfg.min, speedCfg.max);
+
+    // distance / speed = duration
+    this.moveDuration = Math.abs(target - this.x) / speed;
+
+  }
+
+  _startLoop() {
+    let last = performance.now();
+    const tick = (now) => {
+      if (this._isDestroyed) return;
+      const dt = now - last;
+      last = now;
+
+      // Eased position interpolation
+      if (this.moving) {
+        this.moveProgress += dt;
+        const t = Math.min(this.moveProgress / this.moveDuration, 1);
+        const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;  // easeInOut
+        this.x = this.startX + (this.targetX - this.startX) * ease;
+        if (t >= 1) { this.x = this.targetX; this.moving = false; }
+      }
+
+      // Bob: faster + bigger when walking, gentle idle sway when still
+      this.bobPhase += dt * (this.moving ? 0.012 : 0.004);
+      const bob = this.moving ? Math.sin(this.bobPhase) * 3 : Math.sin(this.bobPhase) * 0.7;
+      const squash = this.moving ? (1 + Math.abs(Math.sin(this.bobPhase)) * 0.06) : 1;
+
+      this._updateTransform();
+      this.img.style.transform = `translateY(${-bob}px) scaleY(${squash})`;
+      this.nameEl.style.transform = this.facing === 'left' ? 'scaleX(-1)' : 'none';
+      this.bubble.style.transform = this.facing === 'left' ? 'scaleX(-1)' : 'none';
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   // ─── CLEANUP ───────────────────────────────────────────────────────────────
