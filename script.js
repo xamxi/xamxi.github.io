@@ -13,7 +13,7 @@ const FIREBASE_CONFIG = {
 // ─── IMPORTS ─────────────────────────────────────────────────────────────────
 
 import { LANG } from './lang/index.js';
-// import { initButler } from './butler/index.js';
+import { initButler, applyButlerLang } from './butler/index.js';
 import { initRoomInteractions } from './rooms.js';
 import { registerCharHandlers, syncAllRooms } from './characters.js';
 
@@ -106,6 +106,9 @@ function applyLang() {
 
   // Lang button
   document.getElementById('langBtn').textContent = currentLang === "en" ? "🌐 EN" : "🌐 VI";
+
+  // Butler
+  applyButlerLang(() => LANG[currentLang].butler);
 }
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
@@ -453,11 +456,12 @@ async function doJoin() {
     document.getElementById('mainApp').style.display = '';
     moveLangToHeader();
 
-    // // Butler
-    // initButler({
-    //   getMe: () => me,
-    //   addSystemMessage,
-    // });
+    // Butler
+    initButler({
+      getMe: () => me,
+      addSystemMessage,
+      getLang: () => LANG[currentLang].butler
+    });
 
     registerCharHandlers({
       getMe: () => me,

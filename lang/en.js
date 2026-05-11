@@ -46,6 +46,29 @@ const en = {
     curtain: '🎭 Curtain sways dramatically.',
     floorLampOn: '💡 Vibes restored.',
     floorLampOff: '🌑 Moody gamer mode activated.'
+  },
+
+  butler: {
+    hint: "click me! 👆",
+    modalTitle: "🎩 Ask Buttler",
+    modalSub: "your personal butler, at your service",
+    placeholder: "How may Buttler assist you today? 🎩",
+    askBtn: "ASK ▶",
+    dismissBtn: "DISMISS",
+    loading: "asking Buttler...",
+    greeting: "Hello! I'm Buttler, your beloved butler. Click me or Press B if you need anything! 🎩",
+    openGreet: "Yes? How may I assist? ✨",
+    idleLines: [
+      "Fancy a break? ☕",
+      "You're doing wonderfully! 🎩",
+      "Need anything? Just click me!",
+      "The hour grows late... 🕰️",
+      "A butler's work is never done~ 🧹",
+      "Splendid effort today! ✨",
+      "Don't forget to hydrate! 💧",
+      "Eyes on the prize! 📚",
+      "I have biscuits, if you'd like. 🍪",
+    ],
   }
 };
 
