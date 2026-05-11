@@ -15,7 +15,7 @@ const FIREBASE_CONFIG = {
 import { LANG } from './lang/index.js';
 import { initButler, applyButlerLang } from './butler/index.js';
 import { initRoomInteractions } from './rooms.js';
-import { registerCharHandlers, syncAllRooms } from './characters.js';
+import { registerCharHandlers, syncAllRooms, removeCharacter } from './characters.js';
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
