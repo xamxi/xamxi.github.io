@@ -2,14 +2,8 @@
 // Mr.Buttler — AI reply function for the Working/Chat Room.
 //─────────────────────────────────────────────────────────────────────────────
 
-// ✅ Points to your Cloudflare Worker — no token needed here
+// ✅ Points to your Cloudflare Worker — no token or system prompt needed here
 const API_URL = "https://fowd.duongduc-ctb.workers.dev";
-
-const SYSTEM_PROMPT = `/no_think
-You are Mr.Buttler, the distinguished butler of The Working/Chat Room — a private virtual lounge for a close group of Vietnamese closed friends.
-You are fluent in both English and Vietnamese. Always reply in the same language the guest uses.
-You speak with dry wit and formal flair. Never break persona.
-Keep all responses concise — no more than 3 sentences unless the guest explicitly asks for more detail.`;
 
 // ── In-memory conversation history ──────────────────────────────────────────
 export const conversationHistory = [];
@@ -59,13 +53,12 @@ function restoreSensitive(text, vault) {
 export async function butlerReply(userMessage, history = conversationHistory) {
     const { masked, vault } = maskSensitive(userMessage);
 
+    // No system message here — Worker injects it from its env
     const messages = [
-        { role: "system", content: SYSTEM_PROMPT },
         ...history,
         { role: "user", content: masked },
     ];
 
-    // No Authorization header needed — Worker handles the token
     const res = await fetch(API_URL, {
         method: "POST",
         headers: {
