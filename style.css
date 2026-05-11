@@ -1,4 +1,4 @@
-/* ─── RESET & BASE ─────────────────────────────────── */
+/* ─── RESET & BASE ──────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -28,18 +28,9 @@
   --px: 2px;
 }
 
-.lang-global {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 9999;
-}
-
 @font-face {
   font-family: 'Retron2000';
   src: url('./assets/fonts/SVN-Retron 2000.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
 
 html,
@@ -54,7 +45,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── STARS BACKGROUND ──────────────────────────────── */
+/* ─── STARS ─────────────────────────────────────────── */
 .stars {
   position: fixed;
   inset: 0;
@@ -78,6 +69,14 @@ body {
   to {
     opacity: 0.9;
   }
+}
+
+/* ─── LANG GLOBAL ───────────────────────────────────── */
+.lang-global {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
 }
 
 /* ─── MODAL ─────────────────────────────────────────── */
@@ -119,7 +118,9 @@ body {
   text-align: center;
 }
 
+/* ─── INPUTS ─────────────────────────────────────────── */
 .pixel-input {
+  width: 100%;
   background: var(--bg2);
   border: var(--px) solid var(--border2);
   color: var(--accent3);
@@ -127,7 +128,6 @@ body {
   font-size: 11px;
   padding: 12px 14px;
   outline: none;
-  width: 100%;
 }
 
 .pixel-input:focus {
@@ -135,6 +135,7 @@ body {
   box-shadow: 0 0 0 2px rgba(97, 255, 212, 0.2);
 }
 
+/* ─── COLOR PICKER ──────────────────────────────────── */
 .color-picker-row {
   display: flex;
   align-items: center;
@@ -171,6 +172,7 @@ body {
   box-shadow: 0 0 6px white;
 }
 
+/* ─── BUTTONS ────────────────────────────────────────── */
 .pixel-btn {
   background: var(--accent);
   color: white;
@@ -179,7 +181,6 @@ body {
   font-size: 11px;
   padding: 14px;
   cursor: pointer;
-  image-rendering: pixelated;
   box-shadow: 3px 3px 0 #3a2dbf;
   transition: transform .1s, box-shadow .1s;
 }
@@ -307,17 +308,16 @@ body {
   background: var(--wall1);
 }
 
-/* Floor */
 .floor {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 64px;
+  background-color: var(--floor1);
   background-image:
     repeating-linear-gradient(90deg, transparent 0, transparent 16px, rgba(255, 255, 255, .03) 16px, rgba(255, 255, 255, .03) 18px),
     repeating-linear-gradient(0deg, transparent 0, transparent 16px, rgba(255, 255, 255, .03) 16px, rgba(255, 255, 255, .03) 18px);
-  background-color: var(--floor1);
   border-top: 2px solid var(--floor2);
 }
 
@@ -325,16 +325,14 @@ body {
   background-color: #1a2b1a;
 }
 
-/* Wall */
 .wall {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 140px;
-  background-image:
-    repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(255, 255, 255, .015) 20px, rgba(255, 255, 255, .015) 22px);
   background-color: var(--wall1);
+  background-image: repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(255, 255, 255, .015) 20px, rgba(255, 255, 255, .015) 22px);
 }
 
 .wall-study {
@@ -468,15 +466,13 @@ body {
   transform: translateX(-50%);
   width: 130px;
   height: 28px;
-  background: repeating-linear-gradient(90deg,
-      #442255 0, #553366 10px, #442255 20px);
+  background: repeating-linear-gradient(90deg, #442255 0, #553366 10px, #442255 20px);
   border: 2px solid #664477;
   border-radius: 4px;
 }
 
 .rug-study {
-  background: repeating-linear-gradient(90deg,
-      #1a3a22 0, #224428 10px, #1a3a22 20px);
+  background: repeating-linear-gradient(90deg, #1a3a22 0, #224428 10px, #1a3a22 20px);
   border-color: #336644;
 }
 
@@ -525,7 +521,7 @@ body {
 }
 
 .l2 {
-  top: 0px;
+  top: 0;
   left: 5px;
   transform: rotate(10deg);
 }
@@ -616,7 +612,7 @@ body {
   word-break: break-word;
 }
 
-/* Desk Lamp (study) */
+/* Desk Lamp (study room) */
 .desk-lamp {
   position: absolute;
   bottom: 54px;
@@ -684,6 +680,7 @@ body {
   height: 26px;
 }
 
+/* Desk items */
 .desk-item {
   image-rendering: pixelated;
 }
@@ -766,7 +763,7 @@ body {
   border-radius: 0 0 2px 2px;
 }
 
-/* Character Layer */
+/* Character layer */
 .char-layer {
   position: absolute;
   bottom: 54px;
@@ -871,12 +868,8 @@ body {
 }
 
 .tick-mark.major {
-  top: calc(50% - 44px);
-  left: calc(50% - 1px);
-  width: 2px;
   height: 12px;
   background: var(--accent3);
-  transform-origin: 1px 44px;
 }
 
 .hand {
@@ -988,7 +981,6 @@ body {
   }
 }
 
-/* head */
 .char-head {
   width: 16px;
   height: 14px;
@@ -1022,7 +1014,6 @@ body {
   border-radius: 0 0 2px 2px;
 }
 
-/* hair */
 .char-hair {
   position: absolute;
   top: -3px;
@@ -1094,9 +1085,6 @@ body {
   gap: 10px;
 }
 
-.sidebar-card {}
-
-/* User list */
 .user-list {
   padding: 8px;
   display: flex;
@@ -1118,7 +1106,6 @@ body {
 .user-dot {
   width: 8px;
   height: 8px;
-  border-radius: 0;
   flex-shrink: 0;
   image-rendering: pixelated;
 }
@@ -1130,14 +1117,7 @@ body {
   white-space: nowrap;
 }
 
-/* Chat */
-.msg-time {
-  color: #666;
-  font-size: 0.7rem;
-  margin-right: 8px;
-  opacity: 0.8;
-}
-
+/* ─── CHAT ───────────────────────────────────────────── */
 .chat-card {
   flex: 1;
   display: flex;
@@ -1155,6 +1135,13 @@ body {
   min-height: 100px;
   scrollbar-width: thin;
   scrollbar-color: var(--border2) transparent;
+}
+
+.msg-time {
+  color: #666;
+  font-size: 0.7rem;
+  margin-right: 8px;
+  opacity: 0.8;
 }
 
 .chat-msg {
@@ -1178,7 +1165,6 @@ body {
 
 .chat-input-row {
   display: flex;
-  gap: 0;
   border-top: 2px solid var(--border);
 }
 
@@ -1212,13 +1198,10 @@ body {
   background: #ff88cc;
 }
 
-/* Vibes */
-.vibes-card {}
-
+/* ─── VIBES ──────────────────────────────────────────── */
 .vibe-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
   padding: 6px;
 }
 
@@ -1250,7 +1233,7 @@ body {
   opacity: .6;
 }
 
-/* Volume Control (Vibes) */
+/* Volume control */
 .volume-control {
   display: flex;
   align-items: center;
@@ -1265,27 +1248,21 @@ body {
   text-align: center;
 }
 
-/* slider track */
 #volumeSlider {
   flex: 1;
+  -webkit-appearance: none;
   appearance: none;
   height: 6px;
   background: var(--bg2);
   border: 2px solid var(--border2);
-  image-rendering: pixelated;
   cursor: pointer;
   position: relative;
-  touch-action: none;
-  pointer-events: auto;
-  position: relative;
   z-index: 10;
-  -webkit-appearance: none;
+  touch-action: none;
 }
 
-
-/* slider thumb (pixel style) */
 #volumeSlider::-webkit-slider-thumb {
-  appearance: none;
+  -webkit-appearance: none;
   width: 10px;
   height: 10px;
   background: var(--accent2);
@@ -1303,65 +1280,7 @@ body {
   cursor: pointer;
 }
 
-/* ─── RESPONSIVE ─────────────────────────────────────── */
-@media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .rooms-col {
-    grid-template-columns: 1fr;
-  }
-
-  .clock-card {
-    width: 100%;
-  }
-
-  .clock-face {
-    width: 80px;
-    height: 80px;
-  }
-}
-
-@keyframes pop {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.18);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes wiggle {
-
-  0% {
-    transform: translateX(-50%) rotate(0deg);
-  }
-
-  50% {
-    transform: translateX(-50%) rotate(0.8deg);
-  }
-
-  100% {
-    transform: translateX(-50%) rotate(0deg);
-  }
-}
-
-.pop {
-  animation: pop 0.3s ease;
-}
-
-
-.wiggle {
-  animation: wiggle 0.4s ease;
-}
-
-/* Make all interactive objects show a pointer */
+/* ─── INTERACTIVE ROOM OBJECTS ──────────────────────── */
 .book,
 .desk-item,
 .plant,
@@ -1372,4 +1291,49 @@ body {
 .window-decor,
 .curtain {
   cursor: pointer;
+}
+
+/* ─── ANIMATIONS ─────────────────────────────────────── */
+@keyframes pop {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes wiggle {
+
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+
+  50% {
+    transform: translateX(-50%) rotate(0.8deg);
+  }
+}
+
+.pop {
+  animation: pop 0.3s ease;
+}
+
+.wiggle {
+  animation: wiggle 0.4s ease;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .clock-face {
+    width: 80px;
+    height: 80px;
+  }
 }
