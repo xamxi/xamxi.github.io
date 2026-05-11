@@ -39,8 +39,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-main);
-  font-size: 10px;
-  line-height: 1;
+  font-size: 13px;
+  line-height: 1.2;
   image-rendering: pixelated;
   overflow-x: hidden;
 }
@@ -95,17 +95,17 @@ body {
   background: var(--panel);
   border: var(--px) solid var(--border2);
   box-shadow: 4px 4px 0 var(--accent), 0 0 40px rgba(123, 97, 255, 0.3);
-  width: min(90vw, 520px);
-  min-width: 360px;
-  max-width: 640px;
-  padding: 40px 36px;
+  width: min(90vw, 600px);
+  min-width: 400px;
+  max-width: 700px;
+  padding: 48px 44px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .modal-title {
-  font-size: 18px;
+  font-size: 24px;
   color: var(--accent3);
   text-shadow: 2px 2px 0 var(--accent);
   letter-spacing: 2px;
@@ -113,7 +113,7 @@ body {
 }
 
 .modal-sub {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--text2);
   text-align: center;
 }
@@ -125,8 +125,8 @@ body {
   border: var(--px) solid var(--border2);
   color: var(--accent3);
   font-family: var(--font-main);
-  font-size: 11px;
-  padding: 12px 14px;
+  font-size: 14px;
+  padding: 14px 16px;
   outline: none;
 }
 
@@ -144,7 +144,7 @@ body {
 }
 
 .color-label {
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text2);
 }
 
@@ -155,8 +155,8 @@ body {
 }
 
 .swatch {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border: 2px solid transparent;
   cursor: pointer;
   image-rendering: pixelated;
@@ -178,8 +178,8 @@ body {
   color: white;
   border: none;
   font-family: var(--font-main);
-  font-size: 11px;
-  padding: 14px;
+  font-size: 14px;
+  padding: 16px;
   cursor: pointer;
   box-shadow: 3px 3px 0 #3a2dbf;
   transition: transform .1s, box-shadow .1s;
@@ -204,8 +204,8 @@ body {
   background: var(--panel);
   border: 2px solid var(--accent3);
   color: var(--accent3);
-  font-size: 8px;
-  padding: 10px 16px;
+  font-size: 12px;
+  padding: 12px 20px;
   z-index: 9999;
   opacity: 0;
   transition: all .3s;
@@ -223,22 +223,22 @@ body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  padding: 12px;
+  padding: 16px;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
-  padding: 10px 14px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
   background: var(--panel);
   border: 2px solid var(--border2);
   box-shadow: 3px 3px 0 var(--accent);
 }
 
 .header-title {
-  font-size: 11px;
+  font-size: 15px;
   color: var(--accent3);
   text-shadow: 2px 2px 0 var(--accent);
   letter-spacing: 1px;
@@ -247,35 +247,35 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .online-badge {
-  font-size: 7px;
+  font-size: 11px;
   color: var(--yellow);
   background: rgba(255, 224, 102, 0.1);
   border: 1px solid var(--yellow);
-  padding: 4px 8px;
+  padding: 5px 10px;
 }
 
 .my-tag {
-  font-size: 7px;
+  font-size: 11px;
   color: white;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border: 1px solid var(--border2);
 }
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 180px 320px;
-  gap: 12px;
+  grid-template-columns: 1fr 210px 360px;
+  gap: 16px;
   align-items: start;
 }
 
 .rooms-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 /* ─── CARD ───────────────────────────────────────────── */
@@ -287,9 +287,9 @@ body {
 }
 
 .card-title {
-  font-size: 8px;
+  font-size: 12px;
   color: var(--accent2);
-  padding: 7px 10px;
+  padding: 10px 14px;
   border-bottom: 2px solid var(--border);
   background: var(--bg2);
   letter-spacing: 1px;
@@ -303,7 +303,7 @@ body {
 .room-scene {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 260px;
   overflow: hidden;
   background: var(--wall1);
 }
@@ -313,7 +313,7 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 64px;
+  height: 84px;
   background-color: var(--floor1);
   background-image:
     repeating-linear-gradient(90deg, transparent 0, transparent 16px, rgba(255, 255, 255, .03) 16px, rgba(255, 255, 255, .03) 18px),
@@ -330,7 +330,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 140px;
+  height: 180px;
   background-color: var(--wall1);
   background-image: repeating-linear-gradient(0deg, transparent 0, transparent 20px, rgba(255, 255, 255, .015) 20px, rgba(255, 255, 255, .015) 22px);
 }
@@ -342,10 +342,10 @@ body {
 /* Window */
 .window-decor {
   position: absolute;
-  top: 16px;
-  left: 18px;
-  width: 52px;
-  height: 54px;
+  top: 20px;
+  left: 22px;
+  width: 68px;
+  height: 70px;
   border: 3px solid #5566aa;
   background: #0a0a22;
   display: grid;
@@ -366,36 +366,36 @@ body {
   justify-content: center;
   width: 100%;
   height: 100%;
-  font-size: 8px;
+  font-size: 10px;
   color: rgba(255, 255, 200, 0.4);
 }
 
 .curtain {
   position: absolute;
   top: -2px;
-  width: 10px;
-  height: 58px;
+  width: 13px;
+  height: 74px;
   background: repeating-linear-gradient(180deg, #663366 0, #552255 4px, #663366 8px);
   border: 1px solid #884488;
 }
 
 .curtain.left {
-  left: -4px;
+  left: -5px;
   border-radius: 0 0 4px 0;
 }
 
 .curtain.right {
-  right: -4px;
+  right: -5px;
   border-radius: 0 0 0 4px;
 }
 
 /* Bookshelf */
 .bookshelf {
   position: absolute;
-  top: 18px;
-  right: 14px;
-  width: 52px;
-  height: 48px;
+  top: 22px;
+  right: 18px;
+  width: 68px;
+  height: 62px;
   background: #2a1f10;
   border: 2px solid #4a3520;
   display: flex;
@@ -406,10 +406,10 @@ body {
 
 .study-shelf {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 72px;
-  height: 44px;
+  top: 18px;
+  left: 18px;
+  width: 92px;
+  height: 58px;
   background: #1a2a18;
   border: 2px solid #2a4028;
   display: flex;
@@ -424,48 +424,48 @@ body {
 }
 
 .b1 {
-  height: 28px;
+  height: 36px;
   background: #e05555;
 }
 
 .b2 {
-  height: 34px;
+  height: 44px;
   background: #5588ff;
 }
 
 .b3 {
-  height: 24px;
+  height: 30px;
   background: #ffcc44;
 }
 
 .b4 {
-  height: 30px;
+  height: 38px;
   background: #55cc88;
 }
 
 .b5 {
-  height: 20px;
+  height: 26px;
   background: #cc55ff;
 }
 
 .b6 {
-  height: 26px;
+  height: 34px;
   background: #ff8855;
 }
 
 .b7 {
-  height: 32px;
+  height: 42px;
   background: #55eeff;
 }
 
 /* Rug */
 .rug {
   position: absolute;
-  bottom: 20px;
+  bottom: 26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 130px;
-  height: 28px;
+  width: 170px;
+  height: 36px;
   background: repeating-linear-gradient(90deg, #442255 0, #553366 10px, #442255 20px);
   border: 2px solid #664477;
   border-radius: 4px;
@@ -479,19 +479,19 @@ body {
 /* Plant */
 .plant {
   position: absolute;
-  bottom: 42px;
-  left: 14px;
-  width: 22px;
+  bottom: 56px;
+  left: 18px;
+  width: 28px;
 }
 
 .plant-study {
   left: auto;
-  right: 14px;
+  right: 18px;
 }
 
 .pot {
-  width: 18px;
-  height: 14px;
+  width: 24px;
+  height: 18px;
   background: #aa4422;
   border: 2px solid #cc5533;
   margin: 0 auto;
@@ -500,34 +500,34 @@ body {
 
 .stem {
   width: 2px;
-  height: 12px;
+  height: 16px;
   background: #44aa44;
   margin: 0 auto;
 }
 
 .leaf {
   position: absolute;
-  width: 12px;
-  height: 8px;
+  width: 14px;
+  height: 10px;
   background: #33cc55;
   border-radius: 50%;
   border: 1px solid #44ee66;
 }
 
 .l1 {
-  top: 4px;
+  top: 5px;
   left: 0;
   transform: rotate(-30deg);
 }
 
 .l2 {
   top: 0;
-  left: 5px;
+  left: 6px;
   transform: rotate(10deg);
 }
 
 .l3 {
-  top: 4px;
+  top: 5px;
   right: 0;
   transform: rotate(30deg);
 }
@@ -535,13 +535,13 @@ body {
 /* Lamp */
 .lamp {
   position: absolute;
-  bottom: 42px;
-  right: 12px;
+  bottom: 56px;
+  right: 16px;
 }
 
 .lamp-shade {
-  width: 22px;
-  height: 14px;
+  width: 28px;
+  height: 18px;
   background: #ffee88;
   border: 2px solid #ddcc66;
   clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
@@ -549,14 +549,14 @@ body {
 
 .lamp-pole {
   width: 2px;
-  height: 28px;
+  height: 36px;
   background: #aaaacc;
   margin: 0 auto;
 }
 
 .lamp-base {
-  width: 14px;
-  height: 4px;
+  width: 18px;
+  height: 5px;
   background: #aaaacc;
   border: 1px solid #888899;
   margin: 0 auto;
@@ -564,11 +564,11 @@ body {
 
 .lamp-glow {
   position: absolute;
-  top: -8px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  height: 24px;
+  width: 52px;
+  height: 30px;
   background: radial-gradient(ellipse, rgba(255, 238, 100, 0.25) 0%, transparent 80%);
   pointer-events: none;
   animation: flicker 3s infinite alternate;
@@ -589,11 +589,11 @@ body {
 /* Chalkboard */
 .chalkboard {
   position: absolute;
-  top: 14px;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  width: 110px;
-  height: 56px;
+  width: 140px;
+  height: 72px;
   background: #1a3a22;
   border: 4px solid #2a5a32;
   display: flex;
@@ -602,10 +602,10 @@ body {
 }
 
 .chalk-text {
-  font-size: 5px;
+  font-size: 7px;
   color: rgba(255, 255, 255, 0.75);
   text-align: center;
-  padding: 4px;
+  padding: 5px;
   line-height: 1.8;
   cursor: pointer;
   max-width: 100%;
@@ -615,14 +615,14 @@ body {
 /* Desk Lamp (study room) */
 .desk-lamp {
   position: absolute;
-  bottom: 54px;
-  left: 14px;
-  width: 28px;
+  bottom: 70px;
+  left: 18px;
+  width: 36px;
 }
 
 .dl-shade {
-  width: 20px;
-  height: 10px;
+  width: 26px;
+  height: 13px;
   background: #88bbff;
   border: 2px solid #aaccff;
   clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
@@ -630,16 +630,16 @@ body {
 
 .dl-arm {
   width: 2px;
-  height: 18px;
+  height: 22px;
   background: #8888aa;
   transform: rotate(10deg);
   transform-origin: bottom;
-  margin-left: 8px;
+  margin-left: 10px;
 }
 
 .dl-base {
-  width: 14px;
-  height: 4px;
+  width: 18px;
+  height: 5px;
   background: #8888aa;
 }
 
@@ -647,8 +647,8 @@ body {
   position: absolute;
   top: -4px;
   left: 0;
-  width: 36px;
-  height: 20px;
+  width: 46px;
+  height: 26px;
   background: radial-gradient(ellipse, rgba(136, 187, 255, 0.2) 0%, transparent 80%);
   pointer-events: none;
   animation: flicker 2.5s infinite alternate;
@@ -657,27 +657,27 @@ body {
 /* Desk */
 .desk {
   position: absolute;
-  bottom: 54px;
+  bottom: 70px;
   background: #3a2a18;
   border: 2px solid #5a4228;
   display: flex;
   align-items: flex-end;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 5px;
+  padding: 5px 8px;
 }
 
 .desk-playah {
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 26px;
+  width: 100px;
+  height: 32px;
 }
 
 .desk-study {
   left: 50%;
   transform: translateX(-50%);
-  width: 90px;
-  height: 26px;
+  width: 114px;
+  height: 32px;
 }
 
 /* Desk items */
@@ -686,8 +686,8 @@ body {
 }
 
 .game-controller {
-  width: 18px;
-  height: 12px;
+  width: 24px;
+  height: 16px;
   background: #334455;
   border: 1px solid #556677;
   border-radius: 3px;
@@ -696,24 +696,24 @@ body {
 .game-controller::before {
   content: '';
   display: block;
-  width: 4px;
-  height: 4px;
+  width: 5px;
+  height: 5px;
   background: #ff4444;
   border-radius: 50%;
-  margin: 2px auto;
+  margin: 3px auto;
 }
 
 .mug {
-  width: 10px;
-  height: 12px;
+  width: 13px;
+  height: 16px;
   background: #cc8855;
   border: 1px solid #ee9966;
   border-radius: 0 0 2px 2px;
 }
 
 .notebook {
-  width: 16px;
-  height: 14px;
+  width: 20px;
+  height: 18px;
   background: #2244aa;
   border: 1px solid #3355cc;
 }
@@ -721,24 +721,24 @@ body {
 .notebook::before {
   content: '';
   display: block;
-  width: 10px;
+  width: 13px;
   height: 1px;
   background: rgba(255, 255, 255, 0.4);
-  margin: 3px auto 2px;
+  margin: 4px auto 2px;
   box-shadow: 0 3px 0 rgba(255, 255, 255, 0.4), 0 6px 0 rgba(255, 255, 255, 0.4);
 }
 
 .pencil-cup {
-  width: 10px;
-  height: 14px;
+  width: 13px;
+  height: 18px;
   background: #885533;
   border: 1px solid #aa6644;
   border-radius: 2px 2px 0 0;
 }
 
 .laptop {
-  width: 22px;
-  height: 14px;
+  width: 28px;
+  height: 18px;
   background: #334455;
   border: 2px solid #445566;
   position: relative;
@@ -754,10 +754,10 @@ body {
 .laptop::after {
   content: '';
   position: absolute;
-  bottom: -5px;
-  left: -4px;
-  width: 30px;
-  height: 4px;
+  bottom: -6px;
+  left: -5px;
+  width: 38px;
+  height: 5px;
   background: #334455;
   border: 1px solid #445566;
   border-radius: 0 0 2px 2px;
@@ -766,14 +766,14 @@ body {
 /* Character layer */
 .char-layer {
   position: absolute;
-  bottom: 54px;
+  bottom: 70px;
   left: 0;
   right: 0;
-  height: 44px;
+  height: 56px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   pointer-events: none;
   z-index: 10;
 }
@@ -781,14 +781,14 @@ body {
 /* Room join button */
 .room-join-btn {
   position: absolute;
-  bottom: 4px;
-  right: 6px;
+  bottom: 6px;
+  right: 8px;
   background: var(--accent);
   color: white;
   border: none;
   font-family: var(--font-main);
-  font-size: 6px;
-  padding: 5px 8px;
+  font-size: 10px;
+  padding: 7px 12px;
   cursor: pointer;
   box-shadow: 2px 2px 0 #3a2dbf;
   z-index: 20;
@@ -812,8 +812,8 @@ body {
 
 /* Occupants row */
 .room-occupants {
-  padding: 6px 8px;
-  min-height: 22px;
+  padding: 8px 10px;
+  min-height: 28px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -822,8 +822,8 @@ body {
 }
 
 .occ-chip {
-  font-size: 6px;
-  padding: 3px 6px;
+  font-size: 10px;
+  padding: 4px 8px;
   border: 1px solid var(--border2);
   color: var(--text);
   white-space: nowrap;
@@ -843,14 +843,14 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 14px 10px;
+  gap: 10px;
+  padding: 18px 12px;
 }
 
 .clock-face {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
   border: 3px solid var(--border2);
   border-radius: 50%;
   background: radial-gradient(circle, #1e1e42 60%, #13132b 100%);
@@ -859,16 +859,16 @@ body {
 
 .tick-mark {
   position: absolute;
-  top: calc(50% - 44px);
+  top: calc(50% - 58px);
   left: calc(50% - 1px);
   width: 2px;
   height: 8px;
   background: var(--border2);
-  transform-origin: 1px 44px;
+  transform-origin: 1px 58px;
 }
 
 .tick-mark.major {
-  height: 12px;
+  height: 14px;
   background: var(--accent3);
 }
 
@@ -881,35 +881,35 @@ body {
 }
 
 .hand.hour {
-  width: 3px;
-  height: 28px;
+  width: 4px;
+  height: 36px;
   background: var(--accent3);
-  margin-left: -1.5px;
-  margin-top: -28px;
+  margin-left: -2px;
+  margin-top: -36px;
 }
 
 .hand.minute {
-  width: 2px;
-  height: 38px;
+  width: 3px;
+  height: 50px;
   background: var(--accent2);
-  margin-left: -1px;
-  margin-top: -38px;
+  margin-left: -1.5px;
+  margin-top: -50px;
 }
 
 .hand.second {
   width: 1px;
-  height: 44px;
+  height: 58px;
   background: var(--yellow);
   margin-left: -0.5px;
-  margin-top: -44px;
+  margin-top: -58px;
 }
 
 .clock-center {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   background: white;
   transform: translate(-50%, -50%);
   border-radius: 50%;
@@ -917,14 +917,14 @@ body {
 }
 
 .digital-time {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--accent3);
   text-shadow: 0 0 8px var(--accent3);
   letter-spacing: 2px;
 }
 
 .clock-date {
-  font-size: 6px;
+  font-size: 10px;
   color: var(--text2);
   text-align: center;
 }
@@ -982,8 +982,8 @@ body {
 }
 
 .char-head {
-  width: 16px;
-  height: 14px;
+  width: 22px;
+  height: 20px;
   background: var(--char-color, #ffcc88);
   border: 2px solid rgba(0, 0, 0, 0.4);
   position: relative;
@@ -994,21 +994,21 @@ body {
 .char-head::before {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 2px;
-  width: 4px;
-  height: 3px;
+  top: 5px;
+  left: 3px;
+  width: 5px;
+  height: 4px;
   background: #111;
-  box-shadow: 6px 0 0 #111;
+  box-shadow: 8px 0 0 #111;
 }
 
 /* mouth */
 .char-head::after {
   content: '';
   position: absolute;
-  bottom: 2px;
-  left: 4px;
-  width: 8px;
+  bottom: 3px;
+  left: 5px;
+  width: 11px;
   height: 2px;
   background: rgba(0, 0, 0, 0.35);
   border-radius: 0 0 2px 2px;
@@ -1016,17 +1016,17 @@ body {
 
 .char-hair {
   position: absolute;
-  top: -3px;
+  top: -4px;
   left: 0;
   right: 0;
-  height: 5px;
+  height: 6px;
   background: var(--char-hair, #553311);
   border-radius: 2px 2px 0 0;
 }
 
 .char-body {
-  width: 14px;
-  height: 14px;
+  width: 20px;
+  height: 20px;
   background: var(--char-shirt, #5577ff);
   border: 2px solid rgba(0, 0, 0, 0.3);
   position: relative;
@@ -1037,9 +1037,9 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  left: -5px;
-  width: 4px;
-  height: 10px;
+  left: -7px;
+  width: 6px;
+  height: 14px;
   background: var(--char-shirt, #5577ff);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
@@ -1048,9 +1048,9 @@ body {
   content: '';
   position: absolute;
   top: 0;
-  right: -5px;
-  width: 4px;
-  height: 10px;
+  right: -7px;
+  width: 6px;
+  height: 14px;
   background: var(--char-shirt, #5577ff);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
@@ -1061,19 +1061,19 @@ body {
 }
 
 .char-leg {
-  width: 5px;
-  height: 10px;
+  width: 8px;
+  height: 14px;
   background: var(--char-pants, #334466);
   border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .char-label {
-  font-size: 5px;
+  font-size: 7px;
   color: var(--char-color, #ffcc88);
   white-space: nowrap;
   margin-top: 2px;
   text-shadow: 1px 1px 0 #000, -1px 0 0 #000;
-  max-width: 50px;
+  max-width: 64px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1082,36 +1082,36 @@ body {
 .sidebar-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .user-list {
-  padding: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-height: 40px;
+  min-height: 48px;
 }
 
 .user-entry {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 7px;
-  padding: 5px 6px;
+  gap: 10px;
+  font-size: 11px;
+  padding: 7px 8px;
   border: 1px solid var(--border);
   background: var(--bg2);
 }
 
 .user-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   flex-shrink: 0;
   image-rendering: pixelated;
 }
 
 .user-room-label {
-  font-size: 5px;
+  font-size: 9px;
   color: var(--text2);
   margin-left: auto;
   white-space: nowrap;
@@ -1126,38 +1126,38 @@ body {
 
 .chat-messages {
   flex: 1;
-  padding: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   overflow-y: auto;
-  max-height: 240px;
-  min-height: 100px;
+  max-height: 300px;
+  min-height: 120px;
   scrollbar-width: thin;
   scrollbar-color: var(--border2) transparent;
 }
 
 .msg-time {
   color: #666;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   margin-right: 8px;
   opacity: 0.8;
 }
 
 .chat-msg {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   word-break: break-word;
 }
 
 .chat-msg .msg-author {
-  font-size: 6px;
+  font-size: 10px;
   margin-right: 4px;
 }
 
 .chat-msg.system {
   color: var(--text2);
-  font-size: 6px;
+  font-size: 10px;
   font-style: italic;
   border-left: 2px solid var(--border2);
   padding-left: 6px;
@@ -1174,8 +1174,8 @@ body {
   border: none;
   color: var(--text);
   font-family: var(--font-main);
-  font-size: 7px;
-  padding: 8px 10px;
+  font-size: 11px;
+  padding: 10px 12px;
   outline: none;
 }
 
@@ -1188,8 +1188,8 @@ body {
   color: white;
   border: none;
   font-family: var(--font-main);
-  font-size: 9px;
-  padding: 8px 12px;
+  font-size: 13px;
+  padding: 10px 16px;
   cursor: pointer;
   transition: background .1s;
 }
@@ -1206,8 +1206,8 @@ body {
 }
 
 .vibe-item {
-  font-size: 8px;
-  padding: 7px 8px;
+  font-size: 12px;
+  padding: 10px 10px;
   border: 1px solid transparent;
   cursor: pointer;
   color: var(--text2);
@@ -1227,9 +1227,9 @@ body {
 }
 
 .vibe-note {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--text2);
-  padding: 4px 8px 6px;
+  padding: 4px 10px 8px;
   opacity: .6;
 }
 
@@ -1237,14 +1237,14 @@ body {
 .volume-control {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 8px 10px;
+  gap: 8px;
+  padding: 8px 10px 12px;
 }
 
 .volume-label {
-  font-size: 7px;
+  font-size: 11px;
   color: var(--text2);
-  width: 16px;
+  width: 20px;
   text-align: center;
 }
 
@@ -1327,13 +1327,13 @@ body {
 }
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .layout {
     grid-template-columns: 1fr;
   }
 
   .clock-face {
-    width: 80px;
-    height: 80px;
+    width: 110px;
+    height: 110px;
   }
 }

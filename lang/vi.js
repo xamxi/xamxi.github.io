@@ -4,7 +4,7 @@ const vi = {
   namePlaceholder: "tên của bạn... (đừng ghi 'abc')",
   pickColor: "chọn aura của bạn:",
   join: "VÀO LUÔN ▶",
-  online: "đang (giả vờ) online",
+  online: "đang online",
   studyRoom: "📚 Phòng học (giả vờ chăm)",
   playahRoom: "🎮 Phòng chơi (real personality)",
   chatPlaceholder: "nói gì đó đi... người đừng lặng im đến thế...",
