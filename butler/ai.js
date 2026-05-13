@@ -76,15 +76,16 @@ export async function butlerReply(userMessage, history = conversationHistory) {
     }
 
     const data = await res.json();
-    const rawReply = data.choices[0].message.content
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<\/?think>/gi, "")
-        .replace(/\n{3,}/g, "\n\n")
-        .trim();
-    const finalReply = restoreSensitive(rawReply, vault);
+    const rawReply = data.choices[0].message.content;
+    let cleaned = rawReply.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    cleaned = cleaned.replace(/<think>[\s\S]*/gi, "");
+    cleaned = cleaned.replace(/<\/?think>/gi, "");
+    cleaned = cleaned.replace(/\n{3,}/g, "\n\n").trim();
+
+    const finalReply = restoreSensitive(cleaned, vault);
 
     history.push({ role: "user", content: masked });
-    history.push({ role: "assistant", content: rawReply });
+    history.push({ role: "assistant", content: cleaned });
 
     return finalReply;
 }
