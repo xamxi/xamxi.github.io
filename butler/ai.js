@@ -2,7 +2,6 @@
 // Mr.Buttler — AI reply function for the Working/Chat Room.
 //─────────────────────────────────────────────────────────────────────────────
 
-// ✅ Points to your Cloudflare Worker — no token or system prompt needed here
 const API_URL = "https://fowd.duongduc-ctb.workers.dev";
 
 // ── In-memory conversation history ──────────────────────────────────────────
@@ -53,7 +52,6 @@ function restoreSensitive(text, vault) {
 export async function butlerReply(userMessage, history = conversationHistory) {
     const { masked, vault } = maskSensitive(userMessage);
 
-    // No system message here — Worker injects it from its env
     const messages = [
         ...history,
         { role: "user", content: masked },
@@ -79,7 +77,9 @@ export async function butlerReply(userMessage, history = conversationHistory) {
 
     const data = await res.json();
     const rawReply = data.choices[0].message.content
-        .replace(/<think>[\s\S]*?<\/think>/g, "")
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<\/?think>/gi, "")
+        .replace(/\n{3,}/g, "\n\n")
         .trim();
     const finalReply = restoreSensitive(rawReply, vault);
 
