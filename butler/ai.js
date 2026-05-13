@@ -78,7 +78,9 @@ export async function butlerReply(userMessage, history = conversationHistory) {
     }
 
     const data = await res.json();
-    const rawReply = data.choices[0].message.content;
+    const rawReply = data.choices[0].message.content
+        .replace(/<think>[\s\S]*?<\/think>/g, "")
+        .trim();
     const finalReply = restoreSensitive(rawReply, vault);
 
     history.push({ role: "user", content: masked });
